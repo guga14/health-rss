@@ -28,9 +28,7 @@ SEEN_FILE = DATA_DIR / "seen.json"
 EXCLUDED_TITLES_FILE = DATA_DIR / "excluded_titles.txt"
 
 MAX_FEED_ITEMS = 200
-
 LOOKBACK_DAYS = 450
-
 RETMAX = 1000
 
 
@@ -378,9 +376,7 @@ def fetch_pubmed(pmids):
 # DATA
 # ============================================================
 
-def extract_publication_date(
-    article_node
-):
+def extract_publication_date(article_node):
     """
     Extrai a data de publicação do PubMed.
     """
@@ -470,13 +466,21 @@ def load_excluded_title_words():
     """
     Lê data/excluded_titles.txt.
 
-    Uma palavra ou expressão por linha.
+    Formato normal:
 
-    Linhas vazias são ignoradas.
-    Linhas começadas por # são comentários.
+        editorial
+        correction
+        retraction
 
-    A comparação é feita sem distinção entre maiúsculas
-    e minúsculas.
+    As regras normais são CASE-INSENSITIVE.
+
+    Para uma regra CASE-SENSITIVE, usar:
+
+        CASE:US
+        CASE:USA
+        CASE:United States
+
+    Linhas vazias e linhas começadas por # são ignoradas.
     """
 
     if not EXCLUDED_TITLES_FILE.exists():
@@ -488,7 +492,7 @@ def load_excluded_title_words():
 
         return []
 
-    words = []
+    rules = []
 
     for line in EXCLUDED_TITLES_FILE.read_text(
         encoding="utf-8"
@@ -502,47 +506,96 @@ def load_excluded_title_words():
         if line.startswith("#"):
             continue
 
-        words.append(
-            line.lower()
-        )
+        # ----------------------------------------------------
+        # Regra CASE-SENSITIVE
+        # ----------------------------------------------------
 
-    return words
+        if line.startswith("CASE:"):
+
+            value = line[5:].strip()
+
+            if value:
+
+                rules.append(
+                    {
+                        "text": value,
+                        "case_sensitive": True,
+                    }
+                )
+
+        # ----------------------------------------------------
+        # Regra normal CASE-INSENSITIVE
+        # ----------------------------------------------------
+
+        else:
+
+            rules.append(
+                {
+                    "text": line.lower(),
+                    "case_sensitive": False,
+                }
+            )
+
+    return rules
 
 
 def title_matches_exclusion(
     title,
-    excluded_words,
+    excluded_rules,
 ):
     """
-    Verifica se o título contém alguma das palavras/
-    expressões definidas em excluded_titles.txt.
+    Verifica se o título contém alguma regra definida
+    em excluded_titles.txt.
 
-    Para palavras simples é feita correspondência de
-    palavra inteira.
+    Regras normais:
+        case-insensitive
 
-    Para expressões com várias palavras é feita
-    correspondência da expressão completa.
+    Regras CASE:
+        case-sensitive
+
+    Palavras simples são procuradas como palavras inteiras.
+
+    Expressões com várias palavras são procuradas como
+    expressões completas.
     """
 
     if not title:
         return False, None
 
-    title_lower = title.lower()
+    for rule in excluded_rules:
 
-    for excluded in excluded_words:
+        excluded = rule["text"]
 
-        excluded = excluded.strip().lower()
+        case_sensitive = rule[
+            "case_sensitive"
+        ]
 
-        if not excluded:
-            continue
+        # ----------------------------------------------------
+        # Preparar texto para comparação
+        # ----------------------------------------------------
+
+        if case_sensitive:
+
+            title_to_search = title
+
+            excluded_to_search = excluded
+
+        else:
+
+            title_to_search = title.lower()
+
+            excluded_to_search = excluded.lower()
 
         # ----------------------------------------------------
         # Expressão com várias palavras
         # ----------------------------------------------------
 
-        if " " in excluded:
+        if " " in excluded_to_search:
 
-            if excluded in title_lower:
+            if (
+                excluded_to_search
+                in title_to_search
+            ):
 
                 return True, excluded
 
@@ -554,13 +607,15 @@ def title_matches_exclusion(
 
             pattern = (
                 r"\b"
-                + re.escape(excluded)
+                + re.escape(
+                    excluded_to_search
+                )
                 + r"\b"
             )
 
             if re.search(
                 pattern,
-                title_lower,
+                title_to_search,
             ):
 
                 return True, excluded
@@ -785,8 +840,6 @@ def article_description(article):
             article["abstract"][:4000]
         )
 
-        # Evita quebrar o CDATA caso o abstract
-        # contenha a sequência ]]>
         abstract = abstract.replace(
             "]]>",
             "]]]]><![CDATA[>",
@@ -809,7 +862,7 @@ def make_feed_item(
 ):
     """
     Converte um artigo PubMed num item persistente
-    do RSS.
+    do nosso RSS.
     """
 
     if detected_free_at is None:
@@ -996,20 +1049,28 @@ def main():
     # Filtros de título
     # --------------------------------------------------------
 
-    excluded_title_words = (
+    excluded_title_rules = (
         load_excluded_title_words()
     )
 
     print(
         f"\nFiltros de título carregados: "
-        f"{len(excluded_title_words)}"
+        f"{len(excluded_title_rules)}"
     )
 
-    for word in excluded_title_words:
+    for rule in excluded_title_rules:
 
-        print(
-            f"   - {word}"
-        )
+        if rule["case_sensitive"]:
+
+            print(
+                f"   - CASE:{rule['text']}"
+            )
+
+        else:
+
+            print(
+                f"   - {rule['text']}"
+            )
 
     # --------------------------------------------------------
     # PubMed
@@ -1082,7 +1143,7 @@ def main():
         matches, matched_word = (
             title_matches_exclusion(
                 article["title"],
-                excluded_title_words,
+                excluded_title_rules,
             )
         )
 
