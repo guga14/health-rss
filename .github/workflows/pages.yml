@@ -14,33 +14,80 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
+
+  # ==========================================================
+  # BUILD / PREPARAÇÃO
+  # ==========================================================
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ------------------------------------------------------
+      # Configurar GitHub Pages
+      # ------------------------------------------------------
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      # ------------------------------------------------------
+      # Verificar os feeds
+      # ------------------------------------------------------
+
+      - name: Check RSS files
+        run: |
+          echo "Conteúdo de public/:"
+          find public -maxdepth 2 -type f -print
+
+          echo ""
+          echo "Feeds encontrados:"
+
+          if [ -f public/jama-free.xml ]; then
+            echo "✓ jama-free.xml"
+          else
+            echo "⚠ jama-free.xml não encontrado"
+          fi
+
+          if [ -f public/boletim-cim.xml ]; then
+            echo "✓ boletim-cim.xml"
+          else
+            echo "⚠ boletim-cim.xml não encontrado"
+          fi
+
+      # ------------------------------------------------------
+      # Upload do site
+      # ------------------------------------------------------
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
+
+  # ==========================================================
+  # DEPLOY
+  # ==========================================================
+
   deploy:
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
     runs-on: ubuntu-latest
 
+    needs: build
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Prepare site
-        run: |
-          mkdir -p _site
-          cp -r public/* _site/
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: "_site"
-
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
