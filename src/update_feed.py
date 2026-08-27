@@ -2,7 +2,6 @@
 
 import json
 import os
-import time
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
 from email.utils import format_datetime
@@ -26,34 +25,45 @@ DATA_DIR = Path("data")
 FEED_FILE = PUBLIC_DIR / "jama-free.xml"
 SEEN_FILE = DATA_DIR / "seen.json"
 
+# Número máximo de artigos que permanecem no RSS.
+MAX_FEED_ITEMS = 200
 
-# Revistas JAMA Network indexadas no PubMed.
+# Procuramos artigos publicados nos últimos 450 dias.
+# Isto cobre o embargo de 12 meses com margem.
+LOOKBACK_DAYS = 450
+
+# Número máximo de resultados do PubMed por pesquisa.
+RETMAX = 1000
+
+
+# ============================================================
+# REVISTAS JAMA E PERÍODO DE ACESSO
+# ============================================================
+
+# Valor em meses:
+#
+# 0  = imediatamente open access
+# 6  = gratuito após 6 meses
+# 12 = gratuito após 12 meses
+#
+# IMPORTANTE:
+# Esta lista pode ser ampliada posteriormente.
+
 JOURNALS = {
     "JAMA": 6,
 
-    "JAMA Netw Open": 0,
+    "JAMA Network Open": 0,
     "JAMA Health Forum": 0,
 
-    "JAMA Cardiol": 12,
-    "JAMA Dermatol": 12,
-    "JAMA Intern Med": 12,
-    "JAMA Neurol": 12,
-    "JAMA Oncol": 12,
-    "JAMA Ophthalmol": 12,
-    "JAMA Otolaryngol Head Neck Surg": 12,
-    "JAMA Pediatr": 12,
+    "JAMA Cardiology": 12,
+    "JAMA Dermatology": 12,
+    "JAMA Internal Medicine": 12,
+    "JAMA Neurology": 12,
+    "JAMA Oncology": 12,
+    "JAMA Ophthalmology": 12,
+    "JAMA Pediatrics": 12,
     "JAMA Psychiatry": 12,
-    "JAMA Surg": 12,
 }
-
-
-# Quantos dias para trás devemos consultar.
-# 420 dias cobre o embargo de 12 meses com folga.
-LOOKBACK_DAYS = 450
-
-
-# Máximo de artigos recuperados em cada consulta.
-RETMAX = 1000
 
 
 # ============================================================
@@ -61,6 +71,10 @@ RETMAX = 1000
 # ============================================================
 
 def ncbi_get(endpoint, params):
+    """
+    Faz uma chamada às NCBI E-utilities.
+    """
+
     params = dict(params)
 
     params["tool"] = NCBI_TOOL
@@ -76,7 +90,7 @@ def ncbi_get(endpoint, params):
         url,
         headers={
             "User-Agent": f"{NCBI_TOOL}/1.0 ({NCBI_EMAIL})"
-        }
+        },
     )
 
     with urlopen(request, timeout=60) as response:
@@ -84,10 +98,14 @@ def ncbi_get(endpoint, params):
 
 
 # ============================================================
-# PUBMED SEARCH
+# PUBMED
 # ============================================================
 
 def journal_query():
+    """
+    Cria a expressão PubMed correspondente às revistas JAMA.
+    """
+
     parts = []
 
     for journal in JOURNALS:
@@ -98,18 +116,26 @@ def journal_query():
 
 def search_pubmed():
     """
-    Busca artigos das revistas JAMA publicados nos últimos
-    ~15 meses que atualmente possuem texto completo gratuito.
+    Procura no PubMed artigos das revistas JAMA que:
+    - foram publicados recentemente;
+    - têm texto completo gratuito.
     """
 
     today = datetime.now(timezone.utc).date()
-    start = today - timedelta(days=LOOKBACK_DAYS)
+
+    start = today - timedelta(
+        days=LOOKBACK_DAYS
+    )
 
     term = (
         f"{journal_query()} "
-        f'AND "{start.isoformat()}"[pdat] : "{today.isoformat()}"[pdat] '
+        f'AND "{start.isoformat()}"[pdat] : '
+        f'"{today.isoformat()}"[pdat] '
         f"AND free full text[sb]"
     )
+
+    print("Pesquisa PubMed:")
+    print(term)
 
     data = ncbi_get(
         "esearch.fcgi",
@@ -122,16 +148,18 @@ def search_pubmed():
         },
     )
 
-    result = json.loads(data.decode("utf-8"))
+    result = json.loads(
+        data.decode("utf-8")
+    )
 
     return result["esearchresult"]["idlist"]
 
 
-# ============================================================
-# PUBMED FETCH
-# ============================================================
-
 def fetch_pubmed(pmids):
+    """
+    Obtém os metadados completos dos artigos.
+    """
+
     if not pmids:
         return []
 
@@ -148,9 +176,13 @@ def fetch_pubmed(pmids):
 
     articles = []
 
-    for article in root.findall(".//PubmedArticle"):
+    for article in root.findall(
+        ".//PubmedArticle"
+    ):
 
-        medline = article.find("MedlineCitation")
+        medline = article.find(
+            "MedlineCitation"
+        )
 
         if medline is None:
             continue
@@ -167,67 +199,142 @@ def fetch_pubmed(pmids):
         if article_node is None:
             continue
 
-        title_node = article_node.find("ArticleTitle")
+        # ----------------------------------------------------
+        # TÍTULO
+        # ----------------------------------------------------
+
+        title_node = article_node.find(
+            "ArticleTitle"
+        )
 
         title = ""
 
         if title_node is not None:
-            title = "".join(title_node.itertext()).strip()
+            title = "".join(
+                title_node.itertext()
+            ).strip()
 
-        journal_node = article_node.find("Journal")
+        # ----------------------------------------------------
+        # REVISTA
+        # ----------------------------------------------------
 
         journal = ""
 
+        journal_node = article_node.find(
+            "Journal"
+        )
+
         if journal_node is not None:
-            journal_title = journal_node.find("Title")
+
+            journal_title = journal_node.find(
+                "Title"
+            )
 
             if journal_title is not None:
-                journal = journal_title.text or ""
+                journal = (
+                    journal_title.text or ""
+                )
+
+        # ----------------------------------------------------
+        # ABSTRACT
+        # ----------------------------------------------------
 
         abstract_parts = []
 
         for abstract_text in article_node.findall(
             ".//Abstract/AbstractText"
         ):
-            abstract_parts.append(
-                "".join(abstract_text.itertext()).strip()
-            )
 
-        abstract = " ".join(abstract_parts)
+            text = "".join(
+                abstract_text.itertext()
+            ).strip()
 
-        # DOI
-        doi = None
+            if text:
+                abstract_parts.append(text)
 
-        for aid in article.findall(".//ArticleId"):
-            if aid.attrib.get("IdType") == "doi":
-                doi = aid.text
-                break
-
-        # PubMed URL
-        pubmed_url = (
-            f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"
+        abstract = " ".join(
+            abstract_parts
         )
 
-        # Data de publicação
-        pub_date = extract_publication_date(article_node)
+        # ----------------------------------------------------
+        # DOI
+        # ----------------------------------------------------
 
-        # Link para PMC, quando disponível
+        doi = None
+
+        for aid in article.findall(
+            ".//ArticleId"
+        ):
+
+            if aid.attrib.get(
+                "IdType"
+            ) == "doi":
+
+                doi = aid.text
+
+                break
+
+        # ----------------------------------------------------
+        # URL PUBMED
+        # ----------------------------------------------------
+
+        pubmed_url = (
+            "https://pubmed.ncbi.nlm.nih.gov/"
+            f"{pmid}/"
+        )
+
+        # ----------------------------------------------------
+        # DATA DE PUBLICAÇÃO
+        # ----------------------------------------------------
+
+        publication_date = (
+            extract_publication_date(
+                article_node
+            )
+        )
+
+        # ----------------------------------------------------
+        # PMC
+        # ----------------------------------------------------
+
         pmc_id = None
 
         for article_id in article.findall(
             ".//PubmedData/ArticleIdList/ArticleId"
         ):
-            if article_id.attrib.get("IdType") == "pmc":
+
+            if article_id.attrib.get(
+                "IdType"
+            ) == "pmc":
+
                 pmc_id = article_id.text
+
                 break
 
         pmc_url = None
 
         if pmc_id:
+
             pmc_url = (
-                f"https://pmc.ncbi.nlm.nih.gov/articles/"
+                "https://pmc.ncbi.nlm.nih.gov/"
+                "articles/"
                 f"{pmc_id}/"
             )
+
+        # ----------------------------------------------------
+        # TIPOS DE PUBLICAÇÃO
+        # ----------------------------------------------------
+
+        publication_types = []
+
+        for pub_type in article_node.findall(
+            ".//PublicationTypeList/PublicationType"
+        ):
+
+            if pub_type.text:
+                publication_types.append(
+                    pub_type.text
+                )
 
         articles.append(
             {
@@ -239,50 +346,72 @@ def fetch_pubmed(pmids):
                 "pubmed_url": pubmed_url,
                 "pmc_id": pmc_id,
                 "pmc_url": pmc_url,
-                "publication_date": pub_date,
+                "publication_date": publication_date,
+                "publication_types": publication_types,
             }
         )
 
     return articles
 
 
-def extract_publication_date(article_node):
+# ============================================================
+# DATA
+# ============================================================
+
+def extract_publication_date(
+    article_node
+):
     """
-    Extrai uma data de publicação razoavelmente consistente
-    dos metadados PubMed.
+    Extrai a data de publicação do PubMed.
     """
 
-    journal = article_node.find("Journal")
+    journal = article_node.find(
+        "Journal"
+    )
 
-    if journal is not None:
+    if journal is None:
+        return ""
 
-        pub_date = journal.find("JournalIssue/PubDate")
+    pub_date = journal.find(
+        "JournalIssue/PubDate"
+    )
 
-        if pub_date is not None:
+    if pub_date is None:
+        return ""
 
-            year = pub_date.findtext("Year")
+    year = pub_date.findtext("Year")
 
-            if year:
-                month = pub_date.findtext("Month")
+    if year:
 
-                if month and month.isdigit():
-                    month_number = int(month)
-                else:
-                    month_number = month_to_number(month)
+        month = pub_date.findtext(
+            "Month"
+        )
 
-                day = pub_date.findtext("Day")
+        month_number = month_to_number(
+            month
+        )
 
-                if day and day.isdigit():
-                    day_number = int(day)
-                else:
-                    day_number = 1
+        day = pub_date.findtext(
+            "Day"
+        )
 
-                return f"{year}-{month_number:02d}-{day_number:02d}"
+        if day and day.isdigit():
+            day_number = int(day)
+        else:
+            day_number = 1
 
-            medline_date = pub_date.findtext("MedlineDate")
+        return (
+            f"{year}-"
+            f"{month_number:02d}-"
+            f"{day_number:02d}"
+        )
 
-            if medline_date:
-                return medline_date
+    medline_date = pub_date.findtext(
+        "MedlineDate"
+    )
+
+    if medline_date:
+        return medline_date
 
     return ""
 
@@ -306,49 +435,86 @@ def month_to_number(month):
         "Dec": 12,
     }
 
-    return months.get(month[:3], 1)
+    return months.get(
+        month[:3],
+        1,
+    )
 
 
 # ============================================================
-# FILTRO DE EMBARGO
+# EMBARGO
 # ============================================================
+
+def get_embargo_months(journal):
+    """
+    Retorna o período de embargo configurado.
+    """
+
+    journal_normalized = (
+        journal.strip().lower()
+    )
+
+    for configured_journal, months in JOURNALS.items():
+
+        if (
+            journal_normalized
+            == configured_journal.lower()
+        ):
+            return months
+
+    return None
+
 
 def embargo_elapsed(article):
-    journal = article["journal"]
+    """
+    Verifica se já passou o período de acesso
+    gratuito previsto para a revista.
+    """
 
-    months = None
-
-    for configured_journal, embargo in JOURNALS.items():
-        if journal.lower() == configured_journal.lower():
-            months = embargo
-            break
+    months = get_embargo_months(
+        article["journal"]
+    )
 
     if months is None:
         return False
 
-    # Open-access imediato
+    # Open access imediato.
     if months == 0:
         return True
 
-    date_string = article["publication_date"]
+    date_string = article[
+        "publication_date"
+    ]
 
     try:
-        publication_date = datetime.strptime(
-            date_string,
-            "%Y-%m-%d"
-        ).date()
+
+        publication_date = (
+            datetime.strptime(
+                date_string,
+                "%Y-%m-%d",
+            ).date()
+        )
+
     except ValueError:
+
         return False
 
-    today = datetime.now(timezone.utc).date()
+    today = datetime.now(
+        timezone.utc
+    ).date()
 
-    elapsed_days = (today - publication_date).days
+    elapsed_days = (
+        today - publication_date
+    ).days
 
-    # Pequena margem para diferenças entre data de publicação
-    # online e data de indexação.
-    required_days = months * 30 + 7
+    # Margem de segurança de 7 dias.
+    required_days = (
+        months * 30 + 7
+    )
 
-    return elapsed_days >= required_days
+    return (
+        elapsed_days >= required_days
+    )
 
 
 # ============================================================
@@ -356,19 +522,34 @@ def embargo_elapsed(article):
 # ============================================================
 
 def load_seen():
+
     if not SEEN_FILE.exists():
         return {}
 
     try:
+
         return json.loads(
-            SEEN_FILE.read_text(encoding="utf-8")
+            SEEN_FILE.read_text(
+                encoding="utf-8"
+            )
         )
+
     except Exception:
+
+        print(
+            "Não foi possível ler seen.json. "
+            "Começando novamente."
+        )
+
         return {}
 
 
 def save_seen(seen):
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+    DATA_DIR.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
 
     SEEN_FILE.write_text(
         json.dumps(
@@ -386,6 +567,7 @@ def save_seen(seen):
 # ============================================================
 
 def xml_escape(text):
+
     if text is None:
         return ""
 
@@ -400,97 +582,254 @@ def xml_escape(text):
 
 
 def article_description(article):
+
     parts = []
 
     parts.append(
-        f"<strong>{xml_escape(article['journal'])}</strong>"
+        "<strong>"
+        + xml_escape(
+            article["journal"]
+        )
+        + "</strong>"
     )
 
-    if article["publication_date"]:
+    if article.get(
+        "publication_date"
+    ):
+
         parts.append(
-            f"Publicado: {xml_escape(article['publication_date'])}"
+            "Publicado: "
+            + xml_escape(
+                article[
+                    "publication_date"
+                ]
+            )
         )
 
-    if article["pmc_url"]:
+    if article.get(
+        "pmc_url"
+    ):
+
         parts.append(
-            f'<a href="{xml_escape(article["pmc_url"])}">'
+            '<a href="'
+            + xml_escape(
+                article["pmc_url"]
+            )
+            + '">'
             "Texto completo no PMC"
             "</a>"
         )
 
     parts.append(
-        f'<a href="{xml_escape(article["pubmed_url"])}">'
+        '<a href="'
+        + xml_escape(
+            article["pubmed_url"]
+        )
+        + '">'
         "PubMed"
         "</a>"
     )
 
-    if article["abstract"]:
-        abstract = article["abstract"][:4000]
+    if article.get(
+        "doi"
+    ):
+
+        doi_url = (
+            "https://doi.org/"
+            + article["doi"]
+        )
+
+        parts.append(
+            '<a href="'
+            + xml_escape(
+                doi_url
+            )
+            + '">'
+            "DOI"
+            "</a>"
+        )
+
+    if article.get(
+        "abstract"
+    ):
+
+        abstract = (
+            article["abstract"][:4000]
+        )
 
         parts.append(
             "<p>"
-            + xml_escape(abstract)
+            + xml_escape(
+                abstract
+            )
             + "</p>"
         )
 
     return "<br/>".join(parts)
 
 
-def build_feed(articles):
-    now = datetime.now(timezone.utc)
+def make_feed_item(
+    article,
+    detected_free_at=None,
+):
+    """
+    Converte um artigo PubMed num item persistente
+    do nosso RSS.
+    """
 
-    items = []
+    if detected_free_at is None:
 
-    for article in articles:
-
-        pub_date = now
-
-        guid = (
-            f"https://pubmed.ncbi.nlm.nih.gov/"
-            f"{article['pmid']}/"
+        detected_free_at = (
+            datetime.now(
+                timezone.utc
+            ).isoformat()
         )
 
-        description = article_description(article)
+    guid = article[
+        "pubmed_url"
+    ]
 
-        item = f"""
-        <item>
-            <title>{xml_escape(article['title'])}</title>
-            <link>{xml_escape(guid)}</link>
-            <guid isPermaLink="true">{xml_escape(guid)}</guid>
-            <pubDate>{format_datetime(pub_date)}</pubDate>
-            <description><![CDATA[{description}]]></description>
-            <category>{xml_escape(article['journal'])}</category>
-        </item>
-        """
+    return {
+        "pmid": article["pmid"],
+        "title": article["title"],
+        "journal": article["journal"],
+        "abstract": article["abstract"],
+        "doi": article["doi"],
+        "pubmed_url": article[
+            "pubmed_url"
+        ],
+        "pmc_url": article[
+            "pmc_url"
+        ],
+        "publication_date": article[
+            "publication_date"
+        ],
+        "detected_free_at": detected_free_at,
+    }
 
-        items.append(item)
+
+def build_feed(feed_items):
+
+    now = datetime.now(
+        timezone.utc
+    )
+
+    # Mais recentes primeiro.
+    feed_items.sort(
+        key=lambda item: item.get(
+            "detected_free_at",
+            "",
+        ),
+        reverse=True,
+    )
+
+    # Mantém somente os 200 mais recentes.
+    feed_items = feed_items[
+        :MAX_FEED_ITEMS
+    ]
+
+    rss_items = []
+
+    for item in feed_items:
+
+        try:
+
+            detected_at = (
+                datetime.fromisoformat(
+                    item[
+                        "detected_free_at"
+                    ].replace(
+                        "Z",
+                        "+00:00",
+                    )
+                )
+            )
+
+        except Exception:
+
+            detected_at = now
+
+        description = (
+            article_description(
+                item
+            )
+        )
+
+        rss_items.append(
+            f"""
+            <item>
+                <title>
+                    {xml_escape(item["title"])}
+                </title>
+
+                <link>
+                    {xml_escape(item["pubmed_url"])}
+                </link>
+
+                <guid isPermaLink="true">
+                    {xml_escape(item["pubmed_url"])}
+                </guid>
+
+                <pubDate>
+                    {format_datetime(detected_at)}
+                </pubDate>
+
+                <description>
+                    <![CDATA[
+                    {description}
+                    ]]>
+                </description>
+
+                <category>
+                    {xml_escape(item["journal"])}
+                </category>
+            </item>
+            """
+        )
 
     channel = f"""
     <channel>
-        <title>JAMA — Free Access</title>
 
-        <link>https://jamanetwork.com/</link>
+        <title>
+            JAMA — Free Access
+        </title>
+
+        <link>
+            https://jamanetwork.com/
+        </link>
 
         <description>
-            Artigos das revistas JAMA Network que passaram a
-            ter acesso gratuito ou são open access.
+            Novos artigos das revistas JAMA Network
+            que passaram a ter acesso gratuito ou que
+            são open access.
         </description>
 
-        <language>pt-PT</language>
+        <language>
+            pt-PT
+        </language>
 
-        <lastBuildDate>{format_datetime(now)}</lastBuildDate>
+        <lastBuildDate>
+            {format_datetime(now)}
+        </lastBuildDate>
 
-        {''.join(items)}
+        {''.join(rss_items)}
+
     </channel>
     """
 
     rss = f"""<?xml version="1.0" encoding="UTF-8"?>
+
 <rss version="2.0">
+
 {channel}
+
 </rss>
 """
 
-    PUBLIC_DIR.mkdir(parents=True, exist_ok=True)
+    PUBLIC_DIR.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
 
     FEED_FILE.write_text(
         rss,
@@ -504,61 +843,214 @@ def build_feed(articles):
 
 def main():
 
-    print("Buscando artigos JAMA no PubMed...")
+    print(
+        "======================================"
+    )
 
-    pmids = search_pubmed()
+    print(
+        "JAMA Free Access RSS"
+    )
 
-    print(f"Encontrados {len(pmids)} PMIDs.")
+    print(
+        "======================================"
+    )
 
-    articles = fetch_pubmed(pmids)
-
-    print(f"Recuperados {len(articles)} artigos.")
+    # --------------------------------------------------------
+    # Histórico
+    # --------------------------------------------------------
 
     seen = load_seen()
 
+    # --------------------------------------------------------
+    # PubMed
+    # --------------------------------------------------------
+
+    print(
+        "\n1. Pesquisando PubMed..."
+    )
+
+    pmids = search_pubmed()
+
+    print(
+        f"   {len(pmids)} artigos encontrados."
+    )
+
+    # --------------------------------------------------------
+    # Metadados
+    # --------------------------------------------------------
+
+    print(
+        "\n2. Obtendo metadados..."
+    )
+
+    articles = fetch_pubmed(
+        pmids
+    )
+
+    print(
+        f"   {len(articles)} artigos recuperados."
+    )
+
+    # --------------------------------------------------------
+    # Itens que já estão no feed.
+    #
+    # São armazenados dentro do próprio seen.json.
+    # --------------------------------------------------------
+
+    feed_items = []
+
+    for pmid, record in seen.items():
+
+        feed_item = (
+            record.get(
+                "feed_item"
+            )
+        )
+
+        if feed_item:
+
+            feed_items.append(
+                feed_item
+            )
+
+    # --------------------------------------------------------
+    # Detectar artigos novos
+    # --------------------------------------------------------
+
     newly_free = []
+
+    now = datetime.now(
+        timezone.utc
+    ).isoformat()
 
     for article in articles:
 
         pmid = article["pmid"]
 
-        if not embargo_elapsed(article):
+        # ----------------------------------------------------
+        # Primeiro: verificar embargo
+        # ----------------------------------------------------
+
+        if not embargo_elapsed(
+            article
+        ):
             continue
 
-        if pmid not in seen:
+        # ----------------------------------------------------
+        # Segundo: verificar se já detectamos
+        # ----------------------------------------------------
 
-            newly_free.append(article)
+        if pmid in seen:
 
-            seen[pmid] = {
-                "first_seen_free": (
-                    datetime.now(timezone.utc)
-                    .isoformat()
-                ),
-                "title": article["title"],
-                "journal": article["journal"],
-                "publication_date": (
-                    article["publication_date"]
-                ),
-            }
+            continue
 
-    # Mais recentes primeiro
-    newly_free.sort(
-        key=lambda x: x["publication_date"],
-        reverse=True,
+        # ----------------------------------------------------
+        # É novo para o nosso feed.
+        # ----------------------------------------------------
+
+        print(
+            "\nNOVO:"
+        )
+
+        print(
+            f"  {article['journal']}"
+        )
+
+        print(
+            f"  {article['title']}"
+        )
+
+        print(
+            f"  PMID: {pmid}"
+        )
+
+        feed_item = make_feed_item(
+            article,
+            detected_free_at=now,
+        )
+
+        newly_free.append(
+            feed_item
+        )
+
+        # ----------------------------------------------------
+        # Guardar no histórico.
+        # ----------------------------------------------------
+
+        seen[pmid] = {
+            "first_seen_free": now,
+            "title": article[
+                "title"
+            ],
+            "journal": article[
+                "journal"
+            ],
+            "publication_date": article[
+                "publication_date"
+            ],
+            "feed_item": feed_item,
+        }
+
+    # --------------------------------------------------------
+    # Adicionar novos artigos ao feed
+    # --------------------------------------------------------
+
+    feed_items.extend(
+        newly_free
+    )
+
+    # --------------------------------------------------------
+    # Remover duplicados por PMID
+    # --------------------------------------------------------
+
+    unique_items = {}
+
+    for item in feed_items:
+
+        unique_items[
+            item["pmid"]
+        ] = item
+
+    feed_items = list(
+        unique_items.values()
+    )
+
+    # --------------------------------------------------------
+    # Atualizar RSS
+    # --------------------------------------------------------
+
+    print(
+        "\n3. Atualizando RSS..."
+    )
+
+    build_feed(
+        feed_items
+    )
+
+    # --------------------------------------------------------
+    # Guardar histórico
+    # --------------------------------------------------------
+
+    save_seen(
+        seen
     )
 
     print(
-        f"{len(newly_free)} artigos novos detectados."
+        "\n======================================"
     )
 
-    # Guardamos apenas os últimos 200 itens no feed.
-    current_feed = newly_free[:200]
+    print(
+        f"Novos artigos: {len(newly_free)}"
+    )
 
-    build_feed(current_feed)
+    print(
+        f"Artigos mantidos no RSS: "
+        f"{min(len(feed_items), MAX_FEED_ITEMS)}"
+    )
 
-    save_seen(seen)
-
-    print(f"Feed escrito em {FEED_FILE}")
+    print(
+        "======================================"
+    )
 
 
 if __name__ == "__main__":
