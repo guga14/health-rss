@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
 from email.utils import format_datetime
@@ -24,6 +25,7 @@ DATA_DIR = Path("data")
 
 FEED_FILE = PUBLIC_DIR / "jama-free.xml"
 SEEN_FILE = DATA_DIR / "seen.json"
+EXCLUDED_TITLES_FILE = DATA_DIR / "excluded_titles.txt"
 
 MAX_FEED_ITEMS = 200
 
@@ -48,10 +50,8 @@ JOURNALS = {
     "JAMA Neurology": 12,
     "JAMA Oncology": 12,
     "JAMA Ophthalmology": 12,
-    "JAMA Otolaryngology-Head & Neck Surgery": 12,
     "JAMA Pediatrics": 12,
     "JAMA Psychiatry": 12,
-    "JAMA Surgery": 12,
 }
 
 
@@ -157,7 +157,6 @@ def fetch_pubmed(pmids):
 
     articles = []
 
-    # Processar no máximo 100 PMIDs por pedido.
     BATCH_SIZE = 100
 
     for i in range(
@@ -464,6 +463,112 @@ def month_to_number(month):
 
 
 # ============================================================
+# FILTROS DE TÍTULO
+# ============================================================
+
+def load_excluded_title_words():
+    """
+    Lê data/excluded_titles.txt.
+
+    Uma palavra ou expressão por linha.
+
+    Linhas vazias são ignoradas.
+    Linhas começadas por # são comentários.
+
+    A comparação é feita sem distinção entre maiúsculas
+    e minúsculas.
+    """
+
+    if not EXCLUDED_TITLES_FILE.exists():
+
+        print(
+            "   Aviso: "
+            "data/excluded_titles.txt não existe."
+        )
+
+        return []
+
+    words = []
+
+    for line in EXCLUDED_TITLES_FILE.read_text(
+        encoding="utf-8"
+    ).splitlines():
+
+        line = line.strip()
+
+        if not line:
+            continue
+
+        if line.startswith("#"):
+            continue
+
+        words.append(
+            line.lower()
+        )
+
+    return words
+
+
+def title_matches_exclusion(
+    title,
+    excluded_words,
+):
+    """
+    Verifica se o título contém alguma das palavras/
+    expressões definidas em excluded_titles.txt.
+
+    Para palavras simples é feita correspondência de
+    palavra inteira.
+
+    Para expressões com várias palavras é feita
+    correspondência da expressão completa.
+    """
+
+    if not title:
+        return False, None
+
+    title_lower = title.lower()
+
+    for excluded in excluded_words:
+
+        excluded = excluded.strip().lower()
+
+        if not excluded:
+            continue
+
+        # ----------------------------------------------------
+        # Expressão com várias palavras
+        # ----------------------------------------------------
+
+        if " " in excluded:
+
+            if excluded in title_lower:
+
+                return True, excluded
+
+        # ----------------------------------------------------
+        # Palavra isolada
+        # ----------------------------------------------------
+
+        else:
+
+            pattern = (
+                r"\b"
+                + re.escape(excluded)
+                + r"\b"
+            )
+
+            if re.search(
+                pattern,
+                title_lower,
+            ):
+
+                return True, excluded
+
+    return False, None
+
+
+# ============================================================
 # EMBARGO
 # ============================================================
 
@@ -482,6 +587,7 @@ def get_embargo_months(journal):
             journal_normalized
             == configured_journal.lower()
         ):
+
             return months
 
     return None
@@ -679,12 +785,19 @@ def article_description(article):
             article["abstract"][:4000]
         )
 
+        # Evita quebrar o CDATA caso o abstract
+        # contenha a sequência ]]>
+        abstract = abstract.replace(
+            "]]>",
+            "]]]]><![CDATA[>",
+        )
+
         parts.append(
             "<p>"
-            + xml_escape(
-                abstract
-            )
-            + "</p>"
+            "<![CDATA["
+            + abstract
+            + "]]>"
+            "</p>"
         )
 
     return "<br/>".join(parts)
@@ -696,7 +809,7 @@ def make_feed_item(
 ):
     """
     Converte um artigo PubMed num item persistente
-    do nosso RSS.
+    do RSS.
     """
 
     if detected_free_at is None:
@@ -706,10 +819,6 @@ def make_feed_item(
                 timezone.utc
             ).isoformat()
         )
-
-    guid = article[
-        "pubmed_url"
-    ]
 
     return {
         "pmid": article["pmid"],
@@ -884,6 +993,25 @@ def main():
     seen = load_seen()
 
     # --------------------------------------------------------
+    # Filtros de título
+    # --------------------------------------------------------
+
+    excluded_title_words = (
+        load_excluded_title_words()
+    )
+
+    print(
+        f"\nFiltros de título carregados: "
+        f"{len(excluded_title_words)}"
+    )
+
+    for word in excluded_title_words:
+
+        print(
+            f"   - {word}"
+        )
+
+    # --------------------------------------------------------
     # PubMed
     # --------------------------------------------------------
 
@@ -948,12 +1076,40 @@ def main():
         pmid = article["pmid"]
 
         # ----------------------------------------------------
+        # FILTRO DE TÍTULO
+        # ----------------------------------------------------
+
+        matches, matched_word = (
+            title_matches_exclusion(
+                article["title"],
+                excluded_title_words,
+            )
+        )
+
+        if matches:
+
+            print(
+                "\nEXCLUÍDO pelo filtro de título:"
+            )
+
+            print(
+                f"  Filtro: {matched_word}"
+            )
+
+            print(
+                f"  Título: {article['title']}"
+            )
+
+            continue
+
+        # ----------------------------------------------------
         # Verificar embargo
         # ----------------------------------------------------
 
         if not embargo_elapsed(
             article
         ):
+
             continue
 
         # ----------------------------------------------------
