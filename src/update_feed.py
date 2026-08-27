@@ -750,6 +750,9 @@ def save_seen(seen):
 # ============================================================
 
 def xml_escape(text):
+    """
+    Escapa texto para utilização em XML.
+    """
 
     if text is None:
         return ""
@@ -765,8 +768,21 @@ def xml_escape(text):
 
 
 def article_description(article):
+    """
+    Cria o conteúdo HTML da descrição do artigo.
+
+    IMPORTANTE:
+    Esta função NÃO cria CDATA.
+
+    O CDATA é criado apenas uma vez, em build_feed().
+    Isto evita XML inválido devido a CDATA aninhado.
+    """
 
     parts = []
+
+    # --------------------------------------------------------
+    # Revista
+    # --------------------------------------------------------
 
     parts.append(
         "<strong>"
@@ -775,6 +791,10 @@ def article_description(article):
         )
         + "</strong>"
     )
+
+    # --------------------------------------------------------
+    # Data de publicação
+    # --------------------------------------------------------
 
     if article.get(
         "publication_date"
@@ -788,6 +808,10 @@ def article_description(article):
                 ]
             )
         )
+
+    # --------------------------------------------------------
+    # PMC
+    # --------------------------------------------------------
 
     if article.get(
         "pmc_url"
@@ -803,6 +827,10 @@ def article_description(article):
             "</a>"
         )
 
+    # --------------------------------------------------------
+    # PubMed
+    # --------------------------------------------------------
+
     parts.append(
         '<a href="'
         + xml_escape(
@@ -812,6 +840,10 @@ def article_description(article):
         "PubMed"
         "</a>"
     )
+
+    # --------------------------------------------------------
+    # DOI
+    # --------------------------------------------------------
 
     if article.get(
         "doi"
@@ -832,6 +864,10 @@ def article_description(article):
             "</a>"
         )
 
+    # --------------------------------------------------------
+    # ABSTRACT
+    # --------------------------------------------------------
+
     if article.get(
         "abstract"
     ):
@@ -840,17 +876,24 @@ def article_description(article):
             article["abstract"][:4000]
         )
 
-        abstract = abstract.replace(
-            "]]>",
-            "]]]]><![CDATA[>",
+        # Escapamos o abstract como XML.
+        #
+        # Isto é deliberado: o conteúdo da descrição
+        # será colocado dentro de um único CDATA em
+        # build_feed().
+        #
+        # Também garante que uma eventual sequência
+        # "]]>" no abstract não possa terminar
+        # prematuramente o CDATA exterior.
+
+        abstract = xml_escape(
+            abstract
         )
 
         parts.append(
             "<p>"
-            "<![CDATA["
             + abstract
-            + "]]>"
-            "</p>"
+            + "</p>"
         )
 
     return "<br/>".join(parts)
@@ -898,7 +941,10 @@ def build_feed(feed_items):
         timezone.utc
     )
 
-    # Mais recentes primeiro.
+    # --------------------------------------------------------
+    # Mais recentes primeiro
+    # --------------------------------------------------------
+
     feed_items.sort(
         key=lambda item: item.get(
             "detected_free_at",
@@ -907,7 +953,10 @@ def build_feed(feed_items):
         reverse=True,
     )
 
-    # Mantém somente os 200 mais recentes.
+    # --------------------------------------------------------
+    # Mantém somente os 200 mais recentes
+    # --------------------------------------------------------
+
     feed_items = feed_items[
         :MAX_FEED_ITEMS
     ]
@@ -939,48 +988,44 @@ def build_feed(feed_items):
             )
         )
 
+        # ----------------------------------------------------
+        # IMPORTANTE
+        #
+        # Há apenas UM CDATA:
+        #
+        # <description><![CDATA[ ... ]]></description>
+        #
+        # Não existe CDATA dentro de description.
+        # ----------------------------------------------------
+
         rss_items.append(
             f"""
             <item>
-                <title>
-                    {xml_escape(item["title"])}
-                </title>
+                <title>{xml_escape(item["title"])}</title>
 
-                <link>
-                    {xml_escape(item["pubmed_url"])}
-                </link>
+                <link>{xml_escape(item["pubmed_url"])}</link>
 
-                <guid isPermaLink="true">
-                    {xml_escape(item["pubmed_url"])}
-                </guid>
+                <guid isPermaLink="true">{xml_escape(item["pubmed_url"])}</guid>
 
-                <pubDate>
-                    {format_datetime(detected_at)}
-                </pubDate>
+                <pubDate>{format_datetime(detected_at)}</pubDate>
 
-                <description>
-                    <![CDATA[
-                    {description}
-                    ]]>
-                </description>
+                <description><![CDATA[{description}]]></description>
 
-                <category>
-                    {xml_escape(item["journal"])}
-                </category>
+                <category>{xml_escape(item["journal"])}</category>
             </item>
             """
         )
 
+    # --------------------------------------------------------
+    # CHANNEL
+    # --------------------------------------------------------
+
     channel = f"""
     <channel>
 
-        <title>
-            JAMA — Free Access
-        </title>
+        <title>JAMA — Free Access</title>
 
-        <link>
-            https://jamanetwork.com/
-        </link>
+        <link>https://jamanetwork.com/</link>
 
         <description>
             Novos artigos das revistas JAMA Network
@@ -988,9 +1033,7 @@ def build_feed(feed_items):
             são open access.
         </description>
 
-        <language>
-            pt-PT
-        </language>
+        <language>pt-PT</language>
 
         <lastBuildDate>
             {format_datetime(now)}
@@ -1001,6 +1044,10 @@ def build_feed(feed_items):
     </channel>
     """
 
+    # --------------------------------------------------------
+    # RSS COMPLETO
+    # --------------------------------------------------------
+
     rss = f"""<?xml version="1.0" encoding="UTF-8"?>
 
 <rss version="2.0">
@@ -1010,6 +1057,38 @@ def build_feed(feed_items):
 </rss>
 """
 
+    # --------------------------------------------------------
+    # VALIDAÇÃO
+    #
+    # Antes de escrever o ficheiro, verificamos se o XML
+    # é realmente válido.
+    #
+    # Se houver algum problema, o workflow falha aqui,
+    # em vez de publicar um RSS corrompido.
+    # --------------------------------------------------------
+
+    try:
+
+        ET.fromstring(
+            rss
+        )
+
+    except ET.ParseError as error:
+
+        print(
+            "\nERRO: o RSS gerado não é XML válido."
+        )
+
+        print(
+            f"Detalhes: {error}"
+        )
+
+        raise
+
+    # --------------------------------------------------------
+    # ESCREVER FICHEIRO
+    # --------------------------------------------------------
+
     PUBLIC_DIR.mkdir(
         parents=True,
         exist_ok=True,
@@ -1018,6 +1097,10 @@ def build_feed(feed_items):
     FEED_FILE.write_text(
         rss,
         encoding="utf-8",
+    )
+
+    print(
+        f"   RSS válido gerado: {FEED_FILE}"
     )
 
 
@@ -1182,7 +1265,7 @@ def main():
             continue
 
         # ----------------------------------------------------
-        # É novo para o nosso feed.
+        # É novo para o nosso feed
         # ----------------------------------------------------
 
         print(
@@ -1211,7 +1294,7 @@ def main():
         )
 
         # ----------------------------------------------------
-        # Guardar no histórico.
+        # Guardar no histórico
         # ----------------------------------------------------
 
         seen[pmid] = {
