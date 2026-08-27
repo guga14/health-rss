@@ -16,6 +16,414 @@
     "publication_date": "2026-05-15",
     "title": "Implementing Medical Frailty Exemptions Under HR 1: Clinical Considerations From Medicaid Medical Directors."
   },
+  "42154464": {
+    "feed_item": {
+      "abstract": "Unstable housing has been shown to undermine health and exacerbate health inequities, including by limiting access to HIV prevention and treatment services among people living with HIV (PLHIV), the majority of whom are gay, bisexual, and other men who have sex with men (GBMSM). Assessing the outcomes of housing policies can inform evidence-based housing and homelessness prevention efforts in the US. To examine the association between homelessness and antiretroviral therapy (ART) use among GBMSM in the US and whether this association is moderated by the Housing Opportunities for People Living with HIV/AIDS (HOPWA), a federal housing program for PLHIV. This study was a cross-sectional analyses of 2017 to 2023 American Men's Internet Survey (AMIS) data, a nationwide online survey. State-level HOPWA funding per person was estimated using collated secondary data. Participants were AMIS respondents who self-reported living with HIV and their treatment status. Homelessness was self-reported as living on the street, in a shelter, in a single-room occupancy hotel, or in a car in the past 12 months. Current ART use among PLHIV was the primary outcome. Associations between homelessness and ART use were estimated using multilevel mixed-effects logistic regression, stratified by state-level HOPWA funding per person. Among 58 108 AMIS respondents, 4911 (8.5%) self-reported living with HIV and were included in analyses (4709 [95.9%] were aged ≥25 years, 1339 [27.3%] were Black, 357 [7.3%] were Hispanic, and 1421 [28.9%] were White). Homelessness was associated with lower ART use (adjusted odds ratio [aOR], 0.51; 95% CI, 0.30-0.85). In states with at- or below-median HOPWA funding, homelessness was associated with decreased ART use (aOR, 0.43; 95% CI, 0.21-0.91). In higher-funded states, there was no association (aOR, 0.61; 95% CI, 0.30-1.27). Homelessness is associated with reduced current ART use among GBMSM living with HIV. This association was not present in states with higher per-person HOPWA funding, suggesting that housing investments may mitigate barriers to HIV treatment. Taken together, these findings provide preliminary evidence of the positive health outcomes of HOPWA, underscoring the need for further research on how to optimize its effectiveness.",
+      "detected_free_at": "2026-08-27T12:20:26.304939+00:00",
+      "doi": "10.1001/jamanetworkopen.2026.13609",
+      "journal": "JAMA network open",
+      "pmc_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13187872/",
+      "pmid": "42154464",
+      "publication_date": "2026-05-01",
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/42154464/",
+      "title": "Homelessness and HIV Treatment Among Men Who Have Sex With Men Across US Funding Contexts."
+    },
+    "first_seen_free": "2026-08-27T12:20:26.304939+00:00",
+    "journal": "JAMA network open",
+    "publication_date": "2026-05-01",
+    "title": "Homelessness and HIV Treatment Among Men Who Have Sex With Men Across US Funding Contexts."
+  },
+  "42154465": {
+    "feed_item": {
+      "abstract": "Sedatives, commonly administered in the clinical treatment of young children with critical illness, may be harmful to early brain development. To investigate whether sedative choice during critical illness in early childhood is associated with long-term neurocognitive function. This prospective cohort study was conducted among a subset of cognitively appropriate children with acute respiratory failure who were aged 8 years or younger when enrolled in the Randomized Evaluation of Sedation Titration for Respiratory Failure (RESTORE) cluster-randomized clinical trial conducted in 31 pediatric intensive care units (PICUs) comparing a nurse-implemented, goal-directed sedation protocol with usual care. Patients underwent neurocognitive testing 3 to 8 years after hospitalization at regional neuropsychology testing centers. Neurocognitive testing was conducted from February 16, 2015, to November 27, 2018. Assessors were blinded to the sedation provided. Data were analyzed from September 2022 to March 2026. Critical illness and sedation. The primary outcome was IQ, estimated by the age-appropriate Vocabulary and Block Design subtests of the Wechsler Intelligence Scale. Drug- and dose-dependent associations between sedatives and neurocognitive function were assessed, adjusting for baseline factors and severity and course of critical illness. Neurocognitive testing was performed among 256 children (median [IQR] age, 6.6 [5.4 to 9.0] years). Among 243 children with data, 228 children (93.8%) had age-appropriate global assessment of cognitive function (Pediatric Cognitive Performance Category = 1) at testing. Children were exposed to a median (IQR) of 8 (5 to 14) days of continuous sedation at a median (IQR) age of 1.0 (0.2 to 3.2) years. The mean (SD) estimated IQ was 100.3 (13.2), similar to the published test mean of 100. Mean (SD) estimated IQ at long-term follow-up was lowest in patients receiving an opioid- and benzodiazepine-only strategy (98.3 [11.8]), higher in patients receiving multiple sedative classes not including dexmedetomidine (100.6 [14.5]), and highest in patients receiving multiple sedative classes, including dexmedetomidine (101.9 [13.5]). Controlling for Hollingshead Socioeconomic Status score, severity of illness on PICU admission, and duration of mechanical ventilation, the adjusted mean difference in estimated IQ between the opioid- and benzodiazepine-only vs dexmedetomidine groups was -4.1 (95% CI, -7.3 to -0.9; P = .01). In this study of young children who received more than a week of PICU sedation, the estimated IQ was similar to that of the general population. Children who received an opioid- and benzodiazepine-only strategy scored lower than those who received a strategy that included dexmedetomidine when controlling for socioeconomic status, illness severity, and duration of mechanical ventilation. ClinicalTrials.gov Identifier: NCT02225041.",
+      "detected_free_at": "2026-08-27T12:20:26.304939+00:00",
+      "doi": "10.1001/jamanetworkopen.2026.13599",
+      "journal": "JAMA network open",
+      "pmc_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13187875/",
+      "pmid": "42154465",
+      "publication_date": "2026-05-01",
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/42154465/",
+      "title": "Sedative Choice and Neurocognitive Outcomes After Critical Illness in Early Childhood."
+    },
+    "first_seen_free": "2026-08-27T12:20:26.304939+00:00",
+    "journal": "JAMA network open",
+    "publication_date": "2026-05-01",
+    "title": "Sedative Choice and Neurocognitive Outcomes After Critical Illness in Early Childhood."
+  },
+  "42154466": {
+    "feed_item": {
+      "abstract": "Previous evidence suggests a bidirectional association between physical activity and cognitive function. It remains unclear whether long-term cognitive trajectories are associated with later differences in how older adults allocate time during the day between physical activity, sedentary behavior, and sleep. To assess whether long-term cognitive trajectories are associated with the subsequent amount of daily time in physical activity, sedentary behavior, and sleep. This cohort study included community-dwelling adults aged 50 years or older at baseline and residing in England, using cognitive data from waves 1 (2002 to 2003) to 9 (2018 to 2019) and accelerometer data from wave 10 (2021 to 2023) of the English Longitudinal Study of Ageing. Participant-specific annual rate of change in episodic memory (assessed via immediate and delayed recall) and verbal fluency (assessed via animal naming), estimated using linear mixed-effects models. The movement behavior composition, comprising mean daily minutes of moderate to vigorous physical activity, light physical activity, sedentary behavior, and sleep time. Differences were estimated in time spent in each behavior between a less favorable memory or fluency trajectory (corresponding to the 25th percentile for participant-specific memory or fluency change), median trajectory (50th percentile), and a more favorable trajectory (75th percentile). The study included 2529 participants (1394 [55.1%] female, 1135 [44.9%] male) with a mean (SD) baseline age of 56.1 (5.4) years. Compared with the less favorable memory trajectory, the more favorable trajectory was associated with 14 (95% CI, 8 to 21) more minutes of light physical activity and 12 (95% CI, -20 to -5) fewer minutes of sedentary behavior per day, with larger differences among participants older than 70 years (eg, 20 [95% CI, 11 to 30] more minutes light physical activity). Memory-related differences in moderate to vigorous physical activity and sleep were comparatively minor. Fluency showed similar patterns to memory, but time-use differences between trajectories were smaller. In this cohort study of older adults, participants with less favorable long-term memory trajectories were subsequently less active and more sedentary, suggesting that later-life activity patterns may partly reflect cognitive change.",
+      "detected_free_at": "2026-08-27T12:20:26.304939+00:00",
+      "doi": "10.1001/jamanetworkopen.2026.13399",
+      "journal": "JAMA network open",
+      "pmc_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13187880/",
+      "pmid": "42154466",
+      "publication_date": "2026-05-01",
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/42154466/",
+      "title": "Cognitive Trajectories and Subsequent Accelerometer-Measured Movement Behavior in Older Adults."
+    },
+    "first_seen_free": "2026-08-27T12:20:26.304939+00:00",
+    "journal": "JAMA network open",
+    "publication_date": "2026-05-01",
+    "title": "Cognitive Trajectories and Subsequent Accelerometer-Measured Movement Behavior in Older Adults."
+  },
+  "42154467": {
+    "feed_item": {
+      "abstract": "Achievable benchmarks of care (ABCs) are a process by which performance is anchored on a select high-achieving group. ABCs can motivate systemic quality improvement toward realistically achievable goals. The establishment of multisite ABCs in pediatric emergency medicine has been limited. To report ABCs for pediatric emergency care management (encounters with asthma, infections, or pain), readiness (vital measurement, timeliness, and throughput), and quality (return visits). This cross-sectional study analyzed visits at 12 emergency department (9 pediatric emergency departments [EDs] and 3 affiliate community sites) from January 1, 2017, to December 31, 2024, in the Pediatric Emergency Care Applied Research Network (PECARN) Registry. Data were analyzed from August 2025 to March 2026. An ABC was calculated for each performance measure and derived from the 10% of visits attended to by the highest-performing clinicians both within individual sites and in the database overall using the pared mean method. ABCs for each performance measure are described at the network and site level by year and overall. A total of 5 302 587 visits (median [IQR] patient age, 5.1 [1.8-11.0] years; 52.6% male patients) were included, of which 4 364 658 were quaternary pediatric ED visits and 937 929 were to affiliate community sites. Quality metrics varied across network sites and settings, with ranges of 56.8% to 99.3% for vital sign documentation, 61.4% to 92.6% for 2-point pain reduction for encounters with long bone fractures, and 93.1% to 99.2% for systemic corticosteroids given for visits with asthma exacerbation. Return visit with admission rate and antibiotic stewardship metrics had minimal variability across sites and care settings. There was significant ABC variability in throughput metrics (time-to-clinician and length of stay) across sites and pediatric ED vs affiliate setting. Overall, throughput metrics worsened over the study period. Performance measures more within clinicians' locus of control (care of encounters with asthma, pain reduction in encounters for long bone fractures) had wider variation between the site's mean performance and ABC, indicating practice variation within the sites. This cross-sectional study from 12 EDs established ABCs for pediatric care management using electronic health record data. These can be used to compare quality outcomes of pediatric emergency care and provide benchmarking relevant to settings that care for children.",
+      "detected_free_at": "2026-08-27T12:20:26.304939+00:00",
+      "doi": "10.1001/jamanetworkopen.2026.13391",
+      "journal": "JAMA network open",
+      "pmc_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13187879/",
+      "pmid": "42154467",
+      "publication_date": "2026-05-01",
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/42154467/",
+      "title": "Achievable Benchmarks of Care in Pediatric Emergency Departments."
+    },
+    "first_seen_free": "2026-08-27T12:20:26.304939+00:00",
+    "journal": "JAMA network open",
+    "publication_date": "2026-05-01",
+    "title": "Achievable Benchmarks of Care in Pediatric Emergency Departments."
+  },
+  "42154468": {
+    "feed_item": {
+      "abstract": "Electronic cigarettes (EC) have been shown to expose users to fewer tobacco-related toxicants compared with combustible cigarettes. The current generation of ECs has rapidly shifted toward pod-based nicotine salt formulation ECs, and more research is needed to understand the impacts of using these EC products among those who smoke. To determine the short-term effects of switching from cigarettes to a pod-based 5% nicotine EC, compared with a 0% nicotine EC. This double-blind, parallel-arm, randomized, placebo-controlled trial with follow-up at 6 weeks (randomized phase) and 10 weeks (postrandomized phase) was conducted at a single-site academic medical center in Pennsylvania from April 22, 2022, to December 12, 2023. Participants included adults who smoked more than 4 cigarettes per day (CPD) and expressed interest in switching completely to an EC. Data were analyzed from August 23, 2024, to December 1, 2025. Participants were allocated 1:1 to the standardized research EC (SREC) with 5% nicotine or 0% nicotine for 6 weeks. The primary outcome was concentration of 4-(methylnitrosamino)-1-(3-pyridyl)-1-butanol (NNAL) in urine corrected for creatinine level at 6 weeks. Secondary outcomes included exhaled carbon monoxide (CO), cotinine level, CPD, CO-verified cigarette abstinence, and levels of volatile organic compounds. A total of 104 participants (52 per group) were randomized, of whom 68 (65.4%) were female, with a mean (SD) age of 50.9 (10.0) years. At 6 weeks, the 5% SREC group did not have significantly lower NNAL levels (mean difference [MD], -116.6 [95% CI, -245.4 to 12.2] pg/mg; P = .08). However, a greater proportion of participants in the 5% SREC group were abstinent from cigarettes (19 of 52 [36.5%] vs 6 of 52 [11.5%]; P = .005), compared with the 0% SREC group. The 5% SREC group had greater cotinine levels (MD, 2367.8 [95% CI, 407.5-4328.2] ng/mg; P = .02); however, there were no differences in CPD (MD, -0.9 [95% CI, -3.9 to 2.1] CPD; P = .55) or exhaled CO levels (MD, -5.1 [95% CI, -12.9 to 2.6] ppm; P = .19) between groups. Levels of cyanoethyl mercapturic acid (CYMA) (MD, -49.0 [95% CI, -90.4 to -7.6] ng/mg; P = .02) and 3-hydroxypropyl mercapturic acid (3HPMA) (MD, -290.8 [95% CI, -514.0 to -67.6] ng/mg; P = .01), biomarkers of acrylonitrile (a carcinogen) and acrolein (a cardiac toxicant) exposure (both of which are respiratory toxicants), were lower in the 5% SREC group compared with the 0% SREC group. In this randomized clinical trial of adults who smoke, switching from cigarettes to a 5% SREC vs a 0% SREC resulted in reduced exposure to some toxicants delivered by cigarette smoking and an increased rate of smoking cessation. ECs that deliver nicotine like a cigarette may have an important role in reducing the harmful toxicant exposure caused by cigarette smoking. ClinicalTrials.gov Identifier: NCT03625986.",
+      "detected_free_at": "2026-08-27T12:20:26.304939+00:00",
+      "doi": "10.1001/jamanetworkopen.2026.13292",
+      "journal": "JAMA network open",
+      "pmc_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13187878/",
+      "pmid": "42154468",
+      "publication_date": "2026-05-01",
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/42154468/",
+      "title": "Toxicant Exposures After Switching From Cigarettes to a Pod-Based Electronic Cigarette: A Randomized Clinical Trial."
+    },
+    "first_seen_free": "2026-08-27T12:20:26.304939+00:00",
+    "journal": "JAMA network open",
+    "publication_date": "2026-05-01",
+    "title": "Toxicant Exposures After Switching From Cigarettes to a Pod-Based Electronic Cigarette: A Randomized Clinical Trial."
+  },
+  "42154469": {
+    "feed_item": {
+      "abstract": "Accelerated intermittent theta burst stimulation (aiTBS) is an effective rapid-acting treatment for suicidal ideation in adults with major depressive disorder (MDD). However, evidence in adolescents remains limited, and whether dual-site frontal-cerebellar aiTBS enhances antisuicidal efficacy in this population is unknown. To investigate the clinical effectiveness and safety of dual-site aiTBS targeting the left dorsolateral prefrontal cortex (DLPFC) and cerebellum vs single-site DLPFC aiTBS for reducing suicidal ideation in adolescents with MDD. This double-blind, randomized clinical trial with a 1-month follow-up was conducted at the First Affiliated Hospital of Jinan University (Guangzhou, China) from September 2023 to May 2025. Adolescents (aged 12-18 years) with MDD and suicidal ideation and without comorbid medical or neurologic conditions were enrolled and randomly assigned to dual-site aiTBS or single-site aiTBS. Patients received 5 daily sessions of aiTBS over 4 days. Dual-site aiTBS delivered active stimulation to both the left DLPFC and left cerebellum, while single-site aiTBS delivered active stimulation to the left DLPFC with sham stimulation to the left cerebellum. The primary outcome was the change from baseline to day 4 in the Beck Scale for Suicide Ideation (BSI) score (range, 0-38; higher scores indicate greater severity of suicidal ideation), assessed with a linear mixed-effects model. Of 79 adolescents assessed for eligibility, a total of 59 were included (45 females [76%]; mean [SD] age, 14.78 [1.72] years). Of these, 29 were randomized to the dual-site aiTBS group (23 [79%] female) and 30 to the single-site group (22 [73%] female). For the primary outcome, patients receiving dual-site aiTBS showed a significantly greater reduction in mean BSI scores compared with those receiving single-site aiTBS at day 4 (difference, 4.94 points [95% CI, 0.73-9.14 points]; t = 2.35; P = .02; Cohen d, 0.61 [95% CI, 0.09-1.13]). No serious adverse events in either group were observed. This randomized clinical trial found that dual-site aiTBS targeting the left DLPFC and cerebellum was more effective than single-site left DLPFC aiTBS in reducing suicidal ideation for adolescents with MDD and was well tolerated. The findings suggest this protocol may be a promising strategy for rapid reduction of suicidal ideation in the adolescent population. Chinese Clinical Trial Registry Identifier: ChiCTR2300068954.",
+      "detected_free_at": "2026-08-27T12:20:26.304939+00:00",
+      "doi": "10.1001/jamanetworkopen.2026.13178",
+      "journal": "JAMA network open",
+      "pmc_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13187876/",
+      "pmid": "42154469",
+      "publication_date": "2026-05-01",
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/42154469/",
+      "title": "Dual-Site aiTBS for Suicidal Ideation in Adolescents With Major Depressive Disorder: A Randomized Clinical Trial."
+    },
+    "first_seen_free": "2026-08-27T12:20:26.304939+00:00",
+    "journal": "JAMA network open",
+    "publication_date": "2026-05-01",
+    "title": "Dual-Site aiTBS for Suicidal Ideation in Adolescents With Major Depressive Disorder: A Randomized Clinical Trial."
+  },
+  "42154470": {
+    "feed_item": {
+      "abstract": "",
+      "detected_free_at": "2026-08-27T12:20:26.304939+00:00",
+      "doi": "10.1001/jamanetworkopen.2026.13571",
+      "journal": "JAMA network open",
+      "pmc_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13187871/",
+      "pmid": "42154470",
+      "publication_date": "2026-05-01",
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/42154470/",
+      "title": "Nirsevimab and a Community Recall-Based Immunization Strategy for Child Bronchiolitis Prevention."
+    },
+    "first_seen_free": "2026-08-27T12:20:26.304939+00:00",
+    "journal": "JAMA network open",
+    "publication_date": "2026-05-01",
+    "title": "Nirsevimab and a Community Recall-Based Immunization Strategy for Child Bronchiolitis Prevention."
+  },
+  "42160049": {
+    "feed_item": {
+      "abstract": "The degree to which structural racism is associated with racial disparities in lung cancer care and outcomes is unknown. To evaluate the association between 2 measures of structural racism and quality of care and outcomes for Black and White patients with non-small cell lung cancer (NSCLC) and whether this association differs by patient race. This cross-sectional study was a retrospective analysis of Medicare beneficiaries diagnosed with NSCLC between 2013 and 2019 using Surveillance, Epidemiology, and End Results Program and Medicare data. Patient inclusion criteria were age older than 67 years at the time of diagnosis, continuous fee-for-service Part A and B Medicare coverage for 24 months before through 12 months after diagnosis, NSCLC histology, and non-Hispanic Black or non-Hispanic White race and ethnicity. The data analysis was performed between September 1, 2024, and April 1, 2025. Two county-level measures of structural racism: the Structural Racism Effect Index, which measures deprivation, and County Structural Racism, which assesses racial dissimilarity between Black and White patients across multiple domains. The dichotomous outcomes included localized stage at diagnosis, stage-appropriate evaluation and treatment, and 2-year survival. Multivariable mixed-effects logistic regression was used to assess the association between each structural racism measure and outcome, including interaction terms to determine whether structural racism moderated the association between patient race and NSCLC care and outcomes. Of 54 344 patients (mean [SD] age, 77.7 [6.6] years; 51.6% female), 10.3% were Black and 89.7% were White. A lower proportion of Black patients compared with White patients were diagnosed at a localized stage (30.9% vs 38.4%), received stage-appropriate evaluation and treatment (20.3% vs 28.0%), and survived 2 years after diagnosis (28.7% vs 36.6%). Among White patients, 2-year survival was significantly higher in counties in the highest dissimilarity quintile (estimated probability, 36.8%) vs the lowest (estimated probability, 30.4%), while there was no difference for Black patients (26.8% vs 27.8%). Accordingly, while there was no significant difference in probability of 2-year survival between Black and White patients in the lowest dissimilarity quintile, the disparity was significant in the highest quintile (-10.0%; 95% CI, -12.2% to -7.7%). This cross-sectional study of racial disparities in NSCLC care found that residence in counties with higher structural racism (as measured by the dissimilarity index) was associated with lower mortality among White patients but not among Black patients. Quantifying structural racism and its association with cancer care delivery may identify targets that allow for improvement in quality of cancer care and mitigation of disparities.",
+      "detected_free_at": "2026-08-27T12:20:26.304939+00:00",
+      "doi": "10.1001/jamanetworkopen.2026.13919",
+      "journal": "JAMA network open",
+      "pmc_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13191378/",
+      "pmid": "42160049",
+      "publication_date": "2026-05-01",
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/42160049/",
+      "title": "County-Level Structural Racism Indices and Racial Disparities in Lung Cancer Care."
+    },
+    "first_seen_free": "2026-08-27T12:20:26.304939+00:00",
+    "journal": "JAMA network open",
+    "publication_date": "2026-05-01",
+    "title": "County-Level Structural Racism Indices and Racial Disparities in Lung Cancer Care."
+  },
+  "42160050": {
+    "feed_item": {
+      "abstract": "Mental health services fail to provide culturally safe care for Aboriginal peoples, contributing to persistent health disparities. Understanding how psychiatric care is organized, alongside lived experiences of care, may identify leverage points for service redesign. To examine Aboriginal mental health care pathways using integrated qualitative and quantitative analysis. This mixed-methods study was conducted from June 2022 to December 2023 at the Great Southern Mental Health Service in Western Australia. Twenty Aboriginal adults were recruited; the quantitative component included 19 patients with 1108 documented clinical interactions, and 7 participated in in-depth yarning interviews. Novel analytical methods included a community-preserving surrogate network algorithm and transition-matrix trajectory clustering. Centrality metrics identifying key agents in the clinical interaction network; patient trajectory clustering based on clinical action sequences; qualitative themes from yarning interviews using reflexive thematic analysis. A total of 20 Aboriginal adults were recruited; the quantitative analysis included 19 patients (mean [SD] age, 38.4 [15.9] years; 10 women and 9 men) with 1108 documented interactions, with 7 patients (mean [SD] age, 44.0 [17.8] years; 4 women and 3 men) participating in qualitative yarning interviews. The clinical interaction network had a core-periphery structure in which patients often served as the main link between external agents and hospital staff. Aboriginal mental health workers had closeness centrality above the 99th percentile in surrogate networks, indicating a structurally distinctive central position within the network. Trajectory analysis identified 3 care pathways: predominantly internal care, prolonged internal engagement, and complex external referral with repeated readmissions. Qualitative themes emphasized cultural safety, kinship, and ongoing trauma and showed inconsistent Aboriginal mental health worker presence during crises, while integrated analyses highlighted their pivotal yet vulnerable role within fragmented care pathways, underscoring the need for trauma-informed, culturally safe redesign. In this mixed-methods study, Aboriginal mental health workers occupied central bridging positions, and patients were intermediaries between disconnected parts of the system. Strengthening culturally grounded roles and redesigning care pathways based on operational information flow may improve care coordination and cultural safety in multisetting mental health systems.",
+      "detected_free_at": "2026-08-27T12:20:26.304939+00:00",
+      "doi": "10.1001/jamanetworkopen.2026.13904",
+      "journal": "JAMA network open",
+      "pmc_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13191385/",
+      "pmid": "42160050",
+      "publication_date": "2026-05-01",
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/42160050/",
+      "title": "Mapping Aboriginal Mental Health Journeys Through Psychiatric Care Systems."
+    },
+    "first_seen_free": "2026-08-27T12:20:26.304939+00:00",
+    "journal": "JAMA network open",
+    "publication_date": "2026-05-01",
+    "title": "Mapping Aboriginal Mental Health Journeys Through Psychiatric Care Systems."
+  },
+  "42160051": {
+    "feed_item": {
+      "abstract": "Prevalence of mental health conditions is rising, but there have been few national reports in recent years. The Veterans Health Administration (VA) is the nation's largest institution providing mental health services and provides a fertile ground for assessing rates of mental health conditions. To examine the trends in the risk of 4 mental health conditions in the VA using mandated mental health screens. In this cohort study, unadjusted and adjusted rates of positive screens from fiscal year (FY) 2021 to FY 2024 were examined for depression, alcohol use disorder (AUD), suicide risk, and posttraumatic stress disorder (PTSD) in a cohort of patients screened and continuously enrolled in primary care. Adjusted rates were computed from logistic regression analyses, controlling for patient, visit, and clinic setting characteristics. The cohort included 3 668 361 patients. The mean [SD] age of patients was 61.5 [15.4] years; 3 292 787 patients (89.8%) were male. Both the unadjusted and adjusted rates showed increases in positive screens for depression and PTSD and reductions for suicide risk and AUD. Adjusted rates for depression increased from 8.8% (95% CI, 8.7%-8.7%) to 9.6% (95% CI, 9.1%-10.3%), a 9% increase, and adjusted rates for PTSD increased from 8.1% (95% CI, 8.1%-8.2%) to 10.5% (95% CI, 10.5%-10.6%), a 30% increase. Rates decreased for suicide risk from 0.7% (95% CI, 0.68%-0.70%) to 0.5% (95% CI, 0.51%-0.53%), a 29% decrease, and decreased for AUD from 5.8% (95% CI, 5.8%-5.8%) to 5.4% (95% CI, 5.3%-5.4%), a 7% decrease. Across all mental health conditions, being younger, having higher clinical risk, living far from medical facilities, and being Hispanic increased odds of positive screening. The findings of this longitudinal cohort study emphasize the ongoing need to manage depression and PTSD among veteran patients. The VA's substantial investment in suicide prevention efforts and the VA's uniqueness in conducting routine screens for AUD may have contributed to the reductions in suicide risk and AUD, but this needs to be evaluated. Findings from the VA may signal broad national trends in recent years.",
+      "detected_free_at": "2026-08-27T12:20:26.304939+00:00",
+      "doi": "10.1001/jamanetworkopen.2026.13818",
+      "journal": "JAMA network open",
+      "pmc_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13191389/",
+      "pmid": "42160051",
+      "publication_date": "2026-05-01",
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/42160051/",
+      "title": "Positive Mental Health Screens in the Veterans Health Administration, 2021 to 2024."
+    },
+    "first_seen_free": "2026-08-27T12:20:26.304939+00:00",
+    "journal": "JAMA network open",
+    "publication_date": "2026-05-01",
+    "title": "Positive Mental Health Screens in the Veterans Health Administration, 2021 to 2024."
+  },
+  "42160052": {
+    "feed_item": {
+      "abstract": "Low-risk pancreatic cystic lesions (PCLs) represent common incidental findings with potential for malignant transformation, warranting long-term surveillance. However, data on their long-term cancer risk are limited, leading to inconsistency in current surveillance strategies. To determine the long-term incidence of pancreatic cancer among patients with low-risk PCLs, and to identify baseline clinical and imaging factors associated with cancer development. This cohort study was conducted among adults (aged ≥18 years) who underwent contrast-enhanced abdominal computed tomography (CT) or magnetic resonance imaging (MRI) between January 1, 2009, and December 31, 2021, at a large, multisite health care system in Massachusetts. MRI or CT scans were screened for PCLs without high-risk stigmata, worrisome features, or coexisting pancreatic mass. Eligible patients with low-risk PCLs were longitudinally followed up. Data analysis was performed from February 2024 to May 2025. Baseline demographic, clinical, and imaging characteristics of patients with low-risk PCLs. The outcome was incidence of pancreatic cancer (defined as pathologically confirmed adenocarcinoma, invasive mucinous neoplasms, or high-grade dysplasia). Censoring was defined as absence of pancreatic cancer on imaging follow-up for more than 1 year after the initial examination documenting the PCL. Multivariable cause-specific Cox proportional hazards regression models assessed the associations between baseline factors and incident pancreatic cancer, accounting for death as a competing risk. Associations were reported as hazard ratios (HRs). Risk stratification performance was assessed using Harrell C-statistic and net reclassification index (NRI). Among 499 631 patients reviewed, 6064 with low-risk PCLs were identified and included in the analytic sample, contributing 20 145 person-years of follow-up. Patients had a mean (SD) age at diagnosis of 65.9 (12.3) years and included 3612 females (59.6%). Of the 6064 patients, 38 (0.6%) developed pancreatic cancer, with an incidence rate of 1.89 (95% CI, 1.29-2.49) cases per 1000 person-years, which was higher than the previously reported general population rate of 0.14 cases per 1000 person-years. Twenty-six of 38 patients (68.4%) had cancer that arose from the cyst site, while 12 (31.6%) developed cancer from a different region of the pancreas. Ten patients (26.3%) were diagnosed more than 5 years after initial PCL detection. In multivariable analysis, larger cyst size (HR, 2.24; 95% CI, 1.45-3.48), main pancreatic duct ectasia (HR, 2.84; 95% CI, 1.18-6.84), and older age (HR, 1.04; 95% CI, 1.01-1.07) were associated with cancer. Adding age to a cyst size-based risk stratification model improved estimation of pancreatic cancer risk (NRI, 0.20 [95% CI, 0.03-0.37]; change in C-statistic, 0.14 [95% CI, 0.07-0.22]). This cohort study found that low-risk PCLs were associated with a sustained long-term pancreatic cancer risk and were best stratified by combining clinical and imaging factors. Longer than a 5-year follow-up of low-risk PCLs may be warranted to reduce missed or delayed diagnosis of pancreatic cancer.",
+      "detected_free_at": "2026-08-27T12:20:26.304939+00:00",
+      "doi": "10.1001/jamanetworkopen.2026.13808",
+      "journal": "JAMA network open",
+      "pmc_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13191383/",
+      "pmid": "42160052",
+      "publication_date": "2026-05-01",
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/42160052/",
+      "title": "Pancreatic Cancer Risk in Patients With Low-Risk Cystic Lesions."
+    },
+    "first_seen_free": "2026-08-27T12:20:26.304939+00:00",
+    "journal": "JAMA network open",
+    "publication_date": "2026-05-01",
+    "title": "Pancreatic Cancer Risk in Patients With Low-Risk Cystic Lesions."
+  },
+  "42160053": {
+    "feed_item": {
+      "abstract": "Live attenuated measles-mumps-rubella (MMR) and varicella vaccines are recommended for immunocompetent people with multiple sclerosis (MS) lacking immunity. However, concerns about postvaccination relapses may contribute to vaccine hesitancy, and robust data addressing this risk remain limited. To assess whether the risk of MS relapse within 1 year after MMR or varicella vaccination is not unacceptably worse than risk after no such vaccination based on a predefined noninferiority margin. This cohort study used prospectively collected data from July 2016 to October 2024 for people with MS at a tertiary MS center in Barcelona, Spain, who received at least 1 dose of live attenuated MMR and/or varicella vaccine due to serologic susceptibility. Vaccinated patients were matched 1:2 with unvaccinated control individuals with MS by sex, age, and epoch of first demyelinating event. Live attenuated MMR and/or varicella vaccine. Primary outcomes were relapse count and time to first relapse within 1 year of time 0, analyzed using Poisson and Cox proportional hazards regression models with inverse probability weighting based on a propensity score including treatment category, Expanded Disability Status Scale score, and annualized relapse rate in the prior year. Noninferiority was predefined as an annualized relapse rate ratio with an upper bound of the 95% CI less than 1.4. A total of 369 people with MS were included, of whom 123 were vaccinated (mean [SD] age, 28.75 [8.72] years; 85 females [69.1%]) and matched to 246 unvaccinated controls (mean [SD] age, 28.66 [8.60] years; 170 females [69.1%]). Overall, 36 relapse events were observed (15 [41.7%] among vaccinated patients and 21 [58.3%] among unvaccinated controls). In the weighted Poisson model, although relapse incidence was not significantly different between vaccinated and unvaccinated individuals (incidence rate ratio, 0.52; 95% CI, 0.23-1.06), the noninferiority criterion was met. Similarly, weighted Cox proportional hazards regression models showed no difference in hazard of relapse between groups (hazard ratio [HR], 0.55; 95% CI, 0.25-1.17) but the noninferiority criterion was met. Sensitivity and exploratory analyses, including time-dependent adjustment for postbaseline treatment exposure (HR, 0.60; 95% CI, 0.27-1.33), restriction to the high-risk period (n = 15 events), and comparisons of magnetic resonance imaging before (n = 43 events) and after (n = 21 events) exposure in vaccinated patients, revealed findings consistent with those of the primary analysis. In this cohort study of nonimmunosuppressed people with MS, vaccination with live attenuated MMR or varicella vaccine was not associated with increased risk of postvaccination relapse. The results support the administration of these vaccines when indicated and may help reassure clinicians and patients, reducing vaccine hesitancy.",
+      "detected_free_at": "2026-08-27T12:20:26.304939+00:00",
+      "doi": "10.1001/jamanetworkopen.2026.13742",
+      "journal": "JAMA network open",
+      "pmc_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13191388/",
+      "pmid": "42160053",
+      "publication_date": "2026-05-01",
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/42160053/",
+      "title": "Live Attenuated Measles-Mumps-Rubella and Varicella Vaccinations and Multiple Sclerosis Activity."
+    },
+    "first_seen_free": "2026-08-27T12:20:26.304939+00:00",
+    "journal": "JAMA network open",
+    "publication_date": "2026-05-01",
+    "title": "Live Attenuated Measles-Mumps-Rubella and Varicella Vaccinations and Multiple Sclerosis Activity."
+  },
+  "42160054": {
+    "feed_item": {
+      "abstract": "Judicious use of radiology imaging is an important quality measure in emergency care for children. Prior studies have shown differences in imaging utilization by insurance status and race and ethnicity. To examine if measures of hospital and emergency department (ED) pediatric capabilities modify the association between insurance, race and ethnicity, and imaging utilization. This retrospective cohort study combined data from the 2019 State Emergency Department and State Inpatient Databases of 8 states with the 2019 National Emergency Department Inventory-USA and the 2021 National Pediatric Readiness Project (NPRP) Survey on patients 18 years of age or younger. There were 857 034 total ED visits across 3 cohorts, encompassing patients with asthma, head trauma, or abdominal trauma. Statistical analysis was performed from May 2024 to January 2026. Pediatric capability, as measured by presence of a pediatric emergency care coordinator, readiness according to NPRP data, and hospital functional capability (inpatient and intensive care unit bed status). The association of insurance and race and ethnicity (separate models) with imaging utilization was examined across the 3 cohorts. Chest radiography was evaluated for patients with asthma, head computed tomography (CT) was evaluated for patients with head trauma, and abdominal CT was evaluated for patients with abdominal trauma. Separate mixed-effects logistic regression models were constructed, adjusting for age, sex, presence of a complex chronic condition, diagnostic grouping system severity score, hospital pediatric ED visit volume, and complexity of the hospital patient mix (percentage of patients with complex chronic conditions and mean severity clinical score) with random intercept for hospital. As a sensitivity analysis, these associations were examined separately for discharged patients. There were 857 034 total ED visits in the 3 cohorts, encompassing patients with asthma (380 719 ED visits; mean [SD] age, 9.6 [5.0] years; 210 598 male [55%]), head trauma (435 644 ED visits; mean [SD] age, 7.2 [5.7] years; 264 004 male [61%]), and abdominal trauma (40 671 ED visits; mean [SD] age, 11.0 [5.4] years; 21 632 male [53%]). Children with public insurance were less likely to have undergone imaging across all measures compared with those with private insurance (asthma: adjusted odds ratio [AOR], 0.85 [95% CI, 0.83-0.86]; head trauma: AOR, 0.77 [95% CI, 0.75-0.78]; abdominal trauma: AOR, 0.59 [95% CI, 0.55-0.63]). In the adjusted model, compared with non-Hispanic White patients, non-Hispanic Black and Hispanic patients were less likely to have undergone imaging across all measures (non-Hispanic Black, asthma: AOR, 0.83 [95% CI, 0.81-0.85]; non-Hispanic Black, head trauma: AOR, 0.77 [95% CI, 0.74-0.79]; non-Hispanic Black, abdominal trauma: AOR, 0.60 [95% CI, 0.55-0.65]; Hispanic, asthma: AOR, 0.91 [95% CI, 0.89-0.93]; Hispanic, head trauma: AOR, 0.85 [95% CI, 0.82-0.87]; Hispanic, abdominal trauma: AOR, 0.72 [95% CI, 0.66-0.80]). The presence of pediatric capability was associated with differences in imaging utilization, but not with changes in the pattern of association between either insurance or race and ethnicity and imaging utilization. Similar results were observed among those who were discharged. In this cohort study of pediatric ED visits, increased pediatric capability was not associated with differences in the patterns of imaging utilization by insurance status or race and ethnicity. Additional efforts are needed to ensure that pediatric capability improves quality and equity of care.",
+      "detected_free_at": "2026-08-27T12:20:26.304939+00:00",
+      "doi": "10.1001/jamanetworkopen.2026.13689",
+      "journal": "JAMA network open",
+      "pmc_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13191381/",
+      "pmid": "42160054",
+      "publication_date": "2026-05-01",
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/42160054/",
+      "title": "Hospital and Emergency Department Pediatric Capability, Patient Characteristics, and Radiology Imaging for Children."
+    },
+    "first_seen_free": "2026-08-27T12:20:26.304939+00:00",
+    "journal": "JAMA network open",
+    "publication_date": "2026-05-01",
+    "title": "Hospital and Emergency Department Pediatric Capability, Patient Characteristics, and Radiology Imaging for Children."
+  },
+  "42160055": {
+    "feed_item": {
+      "abstract": "Depressive symptoms in patients with Parkinson disease (PD) are common and burdensome. High-frequency repetitive transcranial magnetic stimulation (HF-rTMS) targeting the left dorsolateral prefrontal cortex (DLPFC-L) is effective but time intensive, limiting practicality. To evaluate the antidepressant efficacy and neurofunctional effects of the ultra-brief intermittent theta-burst stimulation (iTBS) protocol for patients with PD depression (PD-D) compared with active HF-rTMS and sham stimulation. This triple-arm, randomized, sham-controlled single-center clinical trial was conducted at Xinhua Hospital, Shanghai Jiao Tong University School of Medicine in China from August 1, 2024, to January 31, 2025. Patients with PD aged 50 to 80 years with 24-item Hamilton Depression Rating Scale (HAMD-24) scores of 8 to 20 were randomized 1:1:1 to iTBS, HF-rTMS, or sham iTBS. Outcomes were assessed at baseline, week 1, week 2, and week 6. Data analysis was finalized in February 2026. Ten daily sessions over 2 weeks: active iTBS (3 minutes and 20 seconds), active HF-rTMS (20 minutes), or sham iTBS. The primary outcome was the HAMD-24 score at week 2. Secondary outcomes included anxiety (measured by the 14-item Hamilton Anxiety Rating Scale [HAMA-14]), motor symptoms (measured by the Movement Disorder Society-Unified Parkinson Disease Rating Scale), quality of life (measured by the 8-item Parkinson's Disease Questionnaire [PDQ-8]), and prefrontal hemodynamics (measured using functional near-infrared spectroscopy). Primary analysis followed the principle of intention to treat. Of 54 randomized participants (mean [SD] age, 70.1 [5.3] years; 29 men [53.7%]), 50 (92.6%) completed the trial. Linear mixed-effects models revealed a significant group × time interaction for the HAMD-24 (F6,145 = 4.84; P < .001). At week 2, both active interventions were superior to sham (HAMD-24 score mean difference: iTBS, -4.97 [95% CI, -7.71 to -2.23]; P < .001; and HF-rTMS, -5.73 [95% CI, -8.95 to -2.51]; P < .001). Effects persisted at week 6 (HAMD-24 score mean difference: iTBS vs sham, -6.05 [95% CI, -9.26 to -2.83]; P < .001; and HF-rTMS vs sham, -5.57 [95% CI, -9.36 to -1.78]; P = .002), with no between-group differences. Both interventions improved PDQ-8 scores at week 2 (mean difference: iTBS vs sham, -2.33 [95% CI, -3.33 to -1.33]; P < .001; and HF-rTMS vs sham, -2.43 [95% CI, -4.60 to -0.26]; P = .02). iTBS also alleviated anxiety (mean difference: HAMA-14 score vs sham, -4.04 [95% CI, -7.73 to -0.35; P = .03). Active stimulations increased DLPFC-L activation (estimated adjusted difference: iTBS vs sham, 151.18 [95% CI, 51.24-251.11]; P = .004; and HF-rTMS vs sham, 173.26 [95% CI, 71.92-274.60]; P = .001) and reduced time in low-efficiency connectivity states (iTBS: median change, -0.12 [IQR, -0.29 to 0.02]; false discovery rate-corrected P = .045; and HF-rTMS: -0.12 [IQR, -0.32 to 0]; false discovery rate-corrected P = .02). In this randomized clinical trial of patients with PD-D, the ultra-brief iTBS achieved antidepressant efficacy comparable with that of standard HF-rTMS while markedly reducing treatment time, supporting its use as a pragmatic therapy for PD-D. This study suggests the promise of symptom-stratified neuromodulation for personalized treatment protocols. Chinese Clinical Trial Registry Identifier: ChiCTR2100044421.",
+      "detected_free_at": "2026-08-27T12:20:26.304939+00:00",
+      "doi": "10.1001/jamanetworkopen.2026.13580",
+      "journal": "JAMA network open",
+      "pmc_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13191380/",
+      "pmid": "42160055",
+      "publication_date": "2026-05-01",
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/42160055/",
+      "title": "Intermittent Theta-Burst Stimulation for Depressive Symptoms in Parkinson Disease: A Randomized Clinical Trial."
+    },
+    "first_seen_free": "2026-08-27T12:20:26.304939+00:00",
+    "journal": "JAMA network open",
+    "publication_date": "2026-05-01",
+    "title": "Intermittent Theta-Burst Stimulation for Depressive Symptoms in Parkinson Disease: A Randomized Clinical Trial."
+  },
+  "42160056": {
+    "feed_item": {
+      "abstract": "Weight gain is common during menopause, and healthy dietary patterns are key to its management. However, effectiveness of different diets for weight management during this period remains unclear. To examine and compare associations of multiple dietary patterns with weight gain and obesity risk in the years surrounding menopause. This prospective, population-based cohort study included women observed over a 12-year period surrounding menopause in the Nurses' Health Study II (1989-2019). Data analysis was performed between November 2024 and May 2025. Diet was assessed every 4 years using validated food frequency questionnaires. Dietary scores included the plant-based diet index (PDI), healthy PDI, unhealthy PDI, Mediterranean diet, Dietary Approaches to Stop Hypertension, Planetary Health Diet Index (PHDI), low-carbohydrate diet (LCD), healthy LCD, unhealthy LCD, empirical dietary inflammatory pattern, empirical dietary index for hyperinsulinemia (EDIH), and ultraprocessed food intake. The outcomes were annual changes in self-reported body weight (kilograms per year) and incident obesity. Generalized estimating equations were used to estimate annual weight change across dietary patterns. Cox proportional hazards models were used to estimate risk of obesity across dietary patterns. Among 38 283 women (mean [SD] age, 45.6 [3.0] years), the mean (SD) weight gain was 0.80 (1.00) kg per year. During 340 122 person-years of follow-up, 5214 women developed obesity. After adjusting for age, race and ethnicity, marital status, income, postmenopausal hormone therapy use, parity, smoking, alcohol, energy intake, physical activity, and baseline body mass index, the reverse EDIH (quintile 5 vs 1) was associated with the largest reduction in weight gain (mean, -0.28 kg/y; 95% CI, -0.30 to -0.26 kg/y). For incident obesity, the lowest risk was observed for the PHDI (hazard ratio, 0.46; 95% CI, 0.42 to 0.51) and reverse EDIH (hazard ratio, 0.51; 95% CI, 0.46 to 0.56). EDIH showed the largest positive correlations with red or processed meats, sodium, and French fries. PHDI showed the largest positive correlations with nuts, unsaturated fats, whole grain carbohydrates, and vegetable protein. In this prospective cohort study of women during menopause, adopting low-insulinemic and planetary health diets, low in red and processed meats, sodium, potatoes, and French fries and rich in nuts, legumes, fruits, vegetables, and whole grains, was associated with optimized weight management.",
+      "detected_free_at": "2026-08-27T12:20:26.304939+00:00",
+      "doi": "10.1001/jamanetworkopen.2026.13102",
+      "journal": "JAMA network open",
+      "pmc_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13191392/",
+      "pmid": "42160056",
+      "publication_date": "2026-05-01",
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/42160056/",
+      "title": "Optimal Dietary Patterns for Lower Weight Gain and Risk of Obesity Surrounding Menopause."
+    },
+    "first_seen_free": "2026-08-27T12:20:26.304939+00:00",
+    "journal": "JAMA network open",
+    "publication_date": "2026-05-01",
+    "title": "Optimal Dietary Patterns for Lower Weight Gain and Risk of Obesity Surrounding Menopause."
+  },
+  "42160057": {
+    "feed_item": {
+      "abstract": "",
+      "detected_free_at": "2026-08-27T12:20:26.304939+00:00",
+      "doi": "10.1001/jamanetworkopen.2026.13624",
+      "journal": "JAMA network open",
+      "pmc_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13191375/",
+      "pmid": "42160057",
+      "publication_date": "2026-05-01",
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/42160057/",
+      "title": "Composition by Sex of State and Federal Legislative Health Committees."
+    },
+    "first_seen_free": "2026-08-27T12:20:26.304939+00:00",
+    "journal": "JAMA network open",
+    "publication_date": "2026-05-01",
+    "title": "Composition by Sex of State and Federal Legislative Health Committees."
+  },
+  "42166159": {
+    "feed_item": {
+      "abstract": "Phototherapy is widely used in the care of preterm newborns to prevent brain damage resulting from hyperbilirubinemia. However, concerns regarding its safety have been raised. To determine the associations between phototherapy and neonatal mortality or morbidity. This population-based cohort study from the Swedish Neonatal Quality Register included preterm newborns (gestational age, 22-31 weeks) admitted for care between November 2015 and December 2024, and followed up to hospital discharge. Deaths before 7 days of age, major congenital anomalies, or newborns without data on phototherapy were excluded. Duration of phototherapy categorized as 0 to 3, 4 to 5, and 6 to 7 days. Peak bilirubin levels in the first week were categorized as less than 25th, 25th to 50th, 51st to 75th, and greater than 75th percentiles. The primary outcome was late neonatal mortality (LNM) on postnatal days 8 to 27 with a composite of severe neonatal morbidity as secondary outcome: intraventricular hemorrhage (IVH) grade 3 to 4; treated patent ductus arteriosus; necrotizing enterocolitis stage IIa or higher; severe bronchopulmonary dysplasia (BPD); or retinopathy of prematurity. Adjusted odds ratios (aORs) were calculated and adjusted for multiple pregnancy, preeclampsia, cesarean delivery, newborn sex, gestational age, Apgar score less than 4 at 5 minutes, and being small for gestational age or large for gestational age. This study included a total of 4970 newborns. Median (IQR) gestational age was 29.1 (26.7-30.7) weeks, the median (IQR) birth weight was 1180 (860-1510) g, 2741 newborns (55.2%) were male, and 4746 newborns (95.5%) were treated with phototherapy. LNM occurred in 34 of 1995 newborns (1.7%) treated with phototherapy for 0 to 3 days, in 55 of 1921 newborns (2.9%) treated 4 to 5 days, and in 48 of 1054 newborns (4.6%) treated 6 to 7 days. Compared with 0 to 3 days of phototherapy, the aOR for LNM after 4 to 5 was 1.13 (95% CI, 0.71-1.78), and that for 6 to 7 days of treatment was 1.01 (95% CI, 0.62-1.65). Excluding newborns with IVH, hemolytic disease, or Apgar score below 4 at 5 minutes did not alter the results; neither did an evaluation of phototherapy duration and LNM stratified by peak bilirubin categories. Compared with 0 to 3 days, the aOR for composite morbidity after 4 to 5 days of phototherapy was 1.29 (95% CI, 1.04-1.59), and that for 6 to 7 days of phototherapy was 1.66 (95% CI, 1.31-2.09), which could be attributed to more prevalent IVH and severe BPD in newborns with longer treatment durations. In this cohort study of very preterm newborns, the duration of phototherapy for hyperbilirubinemia was not associated with neonatal mortality. Nevertheless, prolonged phototherapy in very preterm newborns should be avoided.",
+      "detected_free_at": "2026-08-27T12:20:26.304939+00:00",
+      "doi": "10.1001/jamanetworkopen.2026.14107",
+      "journal": "JAMA network open",
+      "pmc_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13195481/",
+      "pmid": "42166159",
+      "publication_date": "2026-05-01",
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/42166159/",
+      "title": "Phototherapy, Morbidity, and Mortality in Very Preterm Newborns."
+    },
+    "first_seen_free": "2026-08-27T12:20:26.304939+00:00",
+    "journal": "JAMA network open",
+    "publication_date": "2026-05-01",
+    "title": "Phototherapy, Morbidity, and Mortality in Very Preterm Newborns."
+  },
+  "42166160": {
+    "feed_item": {
+      "abstract": "Understanding approaches to managing treatment-related adverse events (AEs) in immunotherapy and tyrosine kinase inhibitor-based treatments in a clinical setting is critical for reaching optimal patient outcomes. To investigate the management of AEs in community practices during first-line axitinib plus pembrolizumab therapy for advanced renal cell carcinoma (aRCC). This study comprised a cross-sectional electronic physician survey and a multisite, retrospective cohort study of the medical records of US patients with aRCC who initiated first-line axitinib-pembrolizumab between April 22, 2019, and January 31, 2024. Data were analyzed from September 18 to December 20, 2024. First-line axitinib-pembrolizumab therapy. Main outcomes included patient characteristics, treatment patterns, AEs, and physician perspectives on management of AEs. End points were summarized using descriptive statistics as well as the Kaplan Meier method for time-to-event outcomes. A total of 300 patients with aRCC who received first-line axitinib-pembrolizumab therapy (mean [SD] age, 66.0 [9.3] years; 183 [61.0%] male) and 25 physicians (mean [SD] time in practice, 14.6 [7.3] years) were included. The median follow-up was 12.3 (IQR, 8.1-21.6) months. Most patients (285 [95.0%]) started treatment with axitinib at a dose of 5 mg twice daily. Overall, 43 patients (14.3%) required at least 1 dose reduction of axitinib, 41 (13.7%) required at least 1 interruption of axitinib, and 18 (6.0%) required at least 1 interruption of pembrolizumab. AEs were the most common reason for reductions and interruptions. For patients who discontinued axitinib (n = 141) and/or pembrolizumab (n = 146), the most common reason was disease progression (111 of 141 [78.7%] for axitinib and 110 of 146 [75.3%] for pembrolizumab); 11 of 141 (7.8%) discontinued axitinib and 14 of 146 (9.6%) discontinued pembrolizumab due to AEs. All participating physicians were medical oncologists and 22 (88.0%) practiced in community settings. Sixteen physicians (64.0%) had access to multispecialty consultation for managing AEs. Nineteen physicians (76.0%) indicated that overall survival was the top factor in their selection of first-line axitinib-pembrolizumab therapy (6 [24.0%] selected safety profile as one of the top 3 factors). Patient comorbidities (16 of 21 [76.2%]) and performance status (15 of 21 [71.4%]) were important factors when considering treatment modification vs discontinuation. In this cohort study including patients with aRCC who received first-line axitinib-pembrolizumab therapy and physicians with experience treating aRCC, few patients permanently discontinued treatment due to AEs, and physicians reported balancing treatment effectiveness, safety, and patient-level factors when managing treatment-related AEs. Future work is warranted to evaluate the effects of AE management on clinical outcomes.",
+      "detected_free_at": "2026-08-27T12:20:26.304939+00:00",
+      "doi": "10.1001/jamanetworkopen.2026.14061",
+      "journal": "JAMA network open",
+      "pmc_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13195479/",
+      "pmid": "42166160",
+      "publication_date": "2026-05-01",
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/42166160/",
+      "title": "Axitinib-Pembrolizumab and Adverse Event Management in Patients With Advanced Renal Cell Carcinoma."
+    },
+    "first_seen_free": "2026-08-27T12:20:26.304939+00:00",
+    "journal": "JAMA network open",
+    "publication_date": "2026-05-01",
+    "title": "Axitinib-Pembrolizumab and Adverse Event Management in Patients With Advanced Renal Cell Carcinoma."
+  },
+  "42166161": {
+    "feed_item": {
+      "abstract": "",
+      "detected_free_at": "2026-08-27T12:20:26.304939+00:00",
+      "doi": "10.1001/jamanetworkopen.2026.14557",
+      "journal": "JAMA network open",
+      "pmc_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13195477/",
+      "pmid": "42166161",
+      "publication_date": "2026-05-01",
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/42166161/",
+      "title": "Mirvetuximab Soravtansine Exposure and Incidence of Cataract Surgery."
+    },
+    "first_seen_free": "2026-08-27T12:20:26.304939+00:00",
+    "journal": "JAMA network open",
+    "publication_date": "2026-05-01",
+    "title": "Mirvetuximab Soravtansine Exposure and Incidence of Cataract Surgery."
+  },
+  "42166163": {
+    "feed_item": {
+      "abstract": "",
+      "detected_free_at": "2026-08-27T12:20:26.304939+00:00",
+      "doi": "10.1001/jamanetworkopen.2026.14023",
+      "journal": "JAMA network open",
+      "pmc_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13195482/",
+      "pmid": "42166163",
+      "publication_date": "2026-05-01",
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/42166163/",
+      "title": "Trends and Hospital Factors in Emergency Department Patients Leaving Without Being Seen, 2015-2024."
+    },
+    "first_seen_free": "2026-08-27T12:20:26.304939+00:00",
+    "journal": "JAMA network open",
+    "publication_date": "2026-05-01",
+    "title": "Trends and Hospital Factors in Emergency Department Patients Leaving Without Being Seen, 2015-2024."
+  },
+  "42166164": {
+    "feed_item": {
+      "abstract": "",
+      "detected_free_at": "2026-08-27T12:20:26.304939+00:00",
+      "doi": "10.1001/jamanetworkopen.2026.13955",
+      "journal": "JAMA network open",
+      "pmc_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13195475/",
+      "pmid": "42166164",
+      "publication_date": "2026-05-01",
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/42166164/",
+      "title": "Heart Failure Trajectories After Guideline-Directed Medical Therapy."
+    },
+    "first_seen_free": "2026-08-27T12:20:26.304939+00:00",
+    "journal": "JAMA network open",
+    "publication_date": "2026-05-01",
+    "title": "Heart Failure Trajectories After Guideline-Directed Medical Therapy."
+  },
+  "42166165": {
+    "feed_item": {
+      "abstract": "",
+      "detected_free_at": "2026-08-27T12:20:26.304939+00:00",
+      "doi": "10.1001/jamanetworkopen.2026.14027",
+      "journal": "JAMA network open",
+      "pmc_url": null,
+      "pmid": "42166165",
+      "publication_date": "2026-05-01",
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/42166165/",
+      "title": "Measuring What Matters When Patients Leave the Emergency Department."
+    },
+    "first_seen_free": "2026-08-27T12:20:26.304939+00:00",
+    "journal": "JAMA network open",
+    "publication_date": "2026-05-01",
+    "title": "Measuring What Matters When Patients Leave the Emergency Department."
+  },
+  "42166166": {
+    "feed_item": {
+      "abstract": "",
+      "detected_free_at": "2026-08-27T12:20:26.304939+00:00",
+      "doi": "10.1001/jamanetworkopen.2026.18518",
+      "journal": "JAMA network open",
+      "pmc_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13195473/",
+      "pmid": "42166166",
+      "publication_date": "2026-05-01",
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/42166166/",
+      "title": "Error in Figure Label."
+    },
+    "first_seen_free": "2026-08-27T12:20:26.304939+00:00",
+    "journal": "JAMA network open",
+    "publication_date": "2026-05-01",
+    "title": "Error in Figure Label."
+  },
+  "42166173": {
+    "feed_item": {
+      "abstract": "",
+      "detected_free_at": "2026-08-27T12:20:26.304939+00:00",
+      "doi": "10.1001/jamahealthforum.2026.2223",
+      "journal": "JAMA health forum",
+      "pmc_url": null,
+      "pmid": "42166173",
+      "publication_date": "2026-05-01",
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/42166173/",
+      "title": "Enhancing Prescription Drug Affordability Through Competition."
+    },
+    "first_seen_free": "2026-08-27T12:20:26.304939+00:00",
+    "journal": "JAMA health forum",
+    "publication_date": "2026-05-01",
+    "title": "Enhancing Prescription Drug Affordability Through Competition."
+  },
   "42172005": {
     "feed_item": {
       "abstract": "Housing instability is associated with adverse mental health and increased health care use. Policies that reduce eviction risk may affect mental health-related health care utilization. Eviction moratoria enacted during the COVID-19 pandemic provide a natural experiment to examine these associations. To examine whether the lifting of eviction moratoria during the pandemic was associated with changes in mental health care utilization. A synthetic difference-in-differences approach was used, with state-week level, nationwide data of all-payer records of individuals with a mental health diagnosis or medication prescription in March to August 2020 and June to December 2021. The data were analyzed from November 2024 to November 2025. Two phases of eviction moratorium expirations were analyzed. Phase 1 included staggered expiration of state eviction moratoria from March to August 2020; phase 2 assessed the expiration of the federal eviction moratorium in August 2021, when some states maintained their own state-level eviction moratoria after the federal expiration. State-level or federal-level eviction moratorium expirations. Weekly, state-level counts of unique patients who had (1) any outpatient mental health visit, (2) any psychotropic medication prescription, (3) outpatient visits associated with mood-related disorders, (4) outpatient visits associated with serious mental illness (SMI), and (5) suicide-related visits. Of 8 963 310 individuals, 62% were female, and the mean (SD) age was 42.8 (21.5) years. Expiration of moratoria was associated with statistically significant increases in the weekly number of patients who were prescribed a psychotropic medication (0.57% in phase 1 and 1.17% in phase 2) and the number of patients who received outpatient care for SMI (3.42% in phase 1 and 3.13% in phase 2). By contrast, no measurable changes were observed in the overall patient count for mental health-related outpatient visits, outpatient visits associated with mood-related conditions, or suicide-related visits. The results of this differences-in-differences study suggest that the expiration of eviction moratoria was associated with increases in the mean number of patients with psychotropic medication prescriptions and outpatient visits for SMI. These findings underscore the importance of housing for psychiatric treatments and highlight the broader health care implications of housing policy decisions.",
