@@ -1,90 +1,46 @@
 name: Deploy RSS to GitHub Pages
 
 on:
-
-  # Sempre que houver alterações na branch main.
   push:
     branches:
       - main
 
-  # Permite executar manualmente.
   workflow_dispatch:
-
 
 permissions:
   contents: read
   pages: write
   id-token: write
 
-
 concurrency:
-
   group: pages
-
   cancel-in-progress: true
 
-
 jobs:
-
   deploy:
-
     environment:
-
       name: github-pages
-
       url: ${{ steps.deployment.outputs.page_url }}
-
 
     runs-on: ubuntu-latest
 
-
     steps:
-
-      # ------------------------------------------------------
-      # Baixar o repositório
-      # ------------------------------------------------------
-
       - name: Checkout
         uses: actions/checkout@v4
-
-
-      # ------------------------------------------------------
-      # Configurar GitHub Pages
-      # ------------------------------------------------------
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-
-      # ------------------------------------------------------
-      # Preparar o site
-      # ------------------------------------------------------
-
       - name: Prepare site
         run: |
-
           mkdir -p _site
-
           cp -r public/* _site/
-
-
-      # ------------------------------------------------------
-      # Criar artifact
-      # ------------------------------------------------------
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
-
         with:
           path: "_site"
 
-
-      # ------------------------------------------------------
-      # Publicar
-      # ------------------------------------------------------
-
-      - name: Deploy to GitHub Pages
-
+      - name: Deploy
         id: deployment
-
         uses: actions/deploy-pages@v4
