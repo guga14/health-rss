@@ -60,6 +60,8 @@ JOURNALS = {
 def ncbi_get(endpoint, params):
     """
     Faz uma chamada às NCBI E-utilities.
+
+    Os parâmetros são enviados por GET.
     """
 
     params = dict(params)
@@ -80,7 +82,11 @@ def ncbi_get(endpoint, params):
         },
     )
 
-    with urlopen(request, timeout=60) as response:
+    with urlopen(
+        request,
+        timeout=60,
+    ) as response:
+
         return response.read()
 
 
@@ -96,7 +102,10 @@ def journal_query():
     parts = []
 
     for journal in JOURNALS:
-        parts.append(f'"{journal}"[jour]')
+
+        parts.append(
+            f'"{journal}"[jour]'
+        )
 
     return "(" + " OR ".join(parts) + ")"
 
@@ -104,11 +113,14 @@ def journal_query():
 def search_pubmed():
     """
     Procura no PubMed artigos das revistas JAMA que:
+
     - foram publicados recentemente;
     - têm texto completo gratuito.
     """
 
-    today = datetime.now(timezone.utc).date()
+    today = datetime.now(
+        timezone.utc
+    ).date()
 
     start = today - timedelta(
         days=LOOKBACK_DAYS
@@ -121,8 +133,13 @@ def search_pubmed():
         f"AND free full text[sb]"
     )
 
-    print("Pesquisa PubMed:")
-    print(term)
+    print(
+        "Pesquisa PubMed:"
+    )
+
+    print(
+        term
+    )
 
     data = ncbi_get(
         "esearch.fcgi",
@@ -136,10 +153,16 @@ def search_pubmed():
     )
 
     result = json.loads(
-        data.decode("utf-8")
+        data.decode(
+            "utf-8"
+        )
     )
 
-    return result["esearchresult"]["idlist"]
+    return result[
+        "esearchresult"
+    ][
+        "idlist"
+    ]
 
 
 def fetch_pubmed(pmids):
@@ -169,7 +192,8 @@ def fetch_pubmed(pmids):
 
         print(
             f"   A obter artigos "
-            f"{i + 1}-{min(i + BATCH_SIZE, len(pmids))} "
+            f"{i + 1}-"
+            f"{min(i + BATCH_SIZE, len(pmids))} "
             f"de {len(pmids)}..."
         )
 
@@ -182,7 +206,9 @@ def fetch_pubmed(pmids):
             },
         )
 
-        root = ET.fromstring(data)
+        root = ET.fromstring(
+            data
+        )
 
         for article in root.findall(
             ".//PubmedArticle"
@@ -202,7 +228,13 @@ def fetch_pubmed(pmids):
             if pmid_element is None:
                 continue
 
-            pmid = pmid_element.text
+            pmid = (
+                pmid_element.text
+                or ""
+            )
+
+            if not pmid:
+                continue
 
             article_node = medline.find(
                 "Article"
@@ -222,6 +254,7 @@ def fetch_pubmed(pmids):
             title = ""
 
             if title_node is not None:
+
                 title = "".join(
                     title_node.itertext()
                 ).strip()
@@ -243,8 +276,10 @@ def fetch_pubmed(pmids):
                 )
 
                 if journal_title is not None:
+
                     journal = (
-                        journal_title.text or ""
+                        journal_title.text
+                        or ""
                     )
 
             # ------------------------------------------------
@@ -262,6 +297,19 @@ def fetch_pubmed(pmids):
                 ).strip()
 
                 if text:
+
+                    label = abstract_text.get(
+                        "Label"
+                    )
+
+                    if label:
+
+                        text = (
+                            label
+                            + ": "
+                            + text
+                        )
+
                     abstract_parts.append(
                         text
                     )
@@ -284,7 +332,10 @@ def fetch_pubmed(pmids):
                     "IdType"
                 ) == "doi":
 
-                    doi = aid.text
+                    doi = (
+                        aid.text
+                        or ""
+                    ).strip()
 
                     break
 
@@ -321,7 +372,10 @@ def fetch_pubmed(pmids):
                     "IdType"
                 ) == "pmc":
 
-                    pmc_id = article_id.text
+                    pmc_id = (
+                        article_id.text
+                        or ""
+                    ).strip()
 
                     break
 
@@ -346,6 +400,7 @@ def fetch_pubmed(pmids):
             ):
 
                 if pub_type.text:
+
                     publication_types.append(
                         pub_type.text
                     )
@@ -395,7 +450,9 @@ def extract_publication_date(article_node):
     if pub_date is None:
         return ""
 
-    year = pub_date.findtext("Year")
+    year = pub_date.findtext(
+        "Year"
+    )
 
     if year:
 
@@ -411,9 +468,17 @@ def extract_publication_date(article_node):
             "Day"
         )
 
-        if day and day.isdigit():
-            day_number = int(day)
+        if (
+            day
+            and day.isdigit()
+        ):
+
+            day_number = int(
+                day
+            )
+
         else:
+
             day_number = 1
 
         return (
@@ -427,6 +492,7 @@ def extract_publication_date(article_node):
     )
 
     if medline_date:
+
         return medline_date
 
     return ""
@@ -510,9 +576,13 @@ def load_excluded_title_words():
         # Regra CASE-SENSITIVE
         # ----------------------------------------------------
 
-        if line.startswith("CASE:"):
+        if line.startswith(
+            "CASE:"
+        ):
 
-            value = line[5:].strip()
+            value = line[
+                5:
+            ].strip()
 
             if value:
 
@@ -564,7 +634,9 @@ def title_matches_exclusion(
 
     for rule in excluded_rules:
 
-        excluded = rule["text"]
+        excluded = rule[
+            "text"
+        ]
 
         case_sensitive = rule[
             "case_sensitive"
@@ -584,7 +656,9 @@ def title_matches_exclusion(
 
             title_to_search = title.lower()
 
-            excluded_to_search = excluded.lower()
+            excluded_to_search = (
+                excluded.lower()
+            )
 
         # ----------------------------------------------------
         # Expressão com várias palavras
@@ -636,7 +710,10 @@ def get_embargo_months(journal):
         journal.strip().lower()
     )
 
-    for configured_journal, months in JOURNALS.items():
+    for (
+        configured_journal,
+        months,
+    ) in JOURNALS.items():
 
         if (
             journal_normalized
@@ -661,7 +738,10 @@ def embargo_elapsed(article):
     if months is None:
         return False
 
-    # Open access imediato.
+    # --------------------------------------------------------
+    # Open access imediato
+    # --------------------------------------------------------
+
     if months == 0:
         return True
 
@@ -678,7 +758,10 @@ def embargo_elapsed(article):
             ).date()
         )
 
-    except ValueError:
+    except (
+        ValueError,
+        TypeError,
+    ):
 
         return False
 
@@ -690,7 +773,10 @@ def embargo_elapsed(article):
         today - publication_date
     ).days
 
+    # --------------------------------------------------------
     # Margem de segurança de 7 dias.
+    # --------------------------------------------------------
+
     required_days = (
         months * 30 + 7
     )
@@ -746,12 +832,14 @@ def save_seen(seen):
 
 
 # ============================================================
-# RSS
+# RSS / XML
 # ============================================================
 
 def xml_escape(text):
     """
-    Escapa texto para utilização em XML.
+    Escapa texto para utilização segura em XML.
+
+    Não utilizamos CDATA no RSS.
     """
 
     if text is None:
@@ -759,53 +847,74 @@ def xml_escape(text):
 
     return (
         str(text)
-        .replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-        .replace('"', "&quot;")
-        .replace("'", "&apos;")
+        .replace(
+            "&",
+            "&amp;",
+        )
+        .replace(
+            "<",
+            "&lt;",
+        )
+        .replace(
+            ">",
+            "&gt;",
+        )
+        .replace(
+            '"',
+            "&quot;",
+        )
+        .replace(
+            "'",
+            "&apos;",
+        )
     )
 
 
 def article_description(article):
     """
-    Cria o conteúdo HTML da descrição do artigo.
+    Cria a descrição HTML do artigo.
 
     IMPORTANTE:
-    Esta função NÃO cria CDATA.
+    Esta função NÃO utiliza CDATA.
 
-    O CDATA é criado apenas uma vez, em build_feed().
-    Isto evita XML inválido devido a CDATA aninhado.
+    Todo o conteúdo é escapado através de xml_escape()
+    para garantir que o RSS permanece XML válido.
     """
 
     parts = []
 
     # --------------------------------------------------------
-    # Revista
+    # REVISTA
     # --------------------------------------------------------
+
+    journal = article.get(
+        "journal",
+        "",
+    )
 
     parts.append(
         "<strong>"
         + xml_escape(
-            article["journal"]
+            journal
         )
         + "</strong>"
     )
 
     # --------------------------------------------------------
-    # Data de publicação
+    # DATA DE PUBLICAÇÃO
     # --------------------------------------------------------
 
-    if article.get(
-        "publication_date"
-    ):
+    publication_date = article.get(
+        "publication_date",
+        "",
+    )
+
+    if publication_date:
 
         parts.append(
             "Publicado: "
             + xml_escape(
-                article[
-                    "publication_date"
-                ]
+                publication_date
             )
         )
 
@@ -813,90 +922,85 @@ def article_description(article):
     # PMC
     # --------------------------------------------------------
 
-    if article.get(
+    pmc_url = article.get(
         "pmc_url"
-    ):
+    )
+
+    if pmc_url:
 
         parts.append(
-            '<a href="'
+            "Texto completo no PMC: "
             + xml_escape(
-                article["pmc_url"]
+                pmc_url
             )
-            + '">'
-            "Texto completo no PMC"
-            "</a>"
         )
 
     # --------------------------------------------------------
-    # PubMed
+    # PUBMED
     # --------------------------------------------------------
 
-    parts.append(
-        '<a href="'
-        + xml_escape(
-            article["pubmed_url"]
-        )
-        + '">'
-        "PubMed"
-        "</a>"
+    pubmed_url = article.get(
+        "pubmed_url",
+        "",
     )
+
+    if pubmed_url:
+
+        parts.append(
+            "PubMed: "
+            + xml_escape(
+                pubmed_url
+            )
+        )
 
     # --------------------------------------------------------
     # DOI
     # --------------------------------------------------------
 
-    if article.get(
+    doi = article.get(
         "doi"
-    ):
+    )
+
+    if doi:
 
         doi_url = (
             "https://doi.org/"
-            + article["doi"]
+            + str(doi)
         )
 
         parts.append(
-            '<a href="'
+            "DOI: "
             + xml_escape(
                 doi_url
             )
-            + '">'
-            "DOI"
-            "</a>"
         )
 
     # --------------------------------------------------------
     # ABSTRACT
     # --------------------------------------------------------
 
-    if article.get(
-        "abstract"
-    ):
+    abstract = article.get(
+        "abstract",
+        "",
+    )
 
-        abstract = (
-            article["abstract"][:4000]
-        )
+    if abstract:
 
-        # Escapamos o abstract como XML.
-        #
-        # Isto é deliberado: o conteúdo da descrição
-        # será colocado dentro de um único CDATA em
-        # build_feed().
-        #
-        # Também garante que uma eventual sequência
-        # "]]>" no abstract não possa terminar
-        # prematuramente o CDATA exterior.
-
-        abstract = xml_escape(
+        abstract = str(
             abstract
-        )
+        )[:4000]
 
         parts.append(
             "<p>"
-            + abstract
+            + xml_escape(
+                abstract
+            )
             + "</p>"
         )
 
-    return "<br/>".join(parts)
+    return "<br/>".join(
+        parts
+    )
 
 
 def make_feed_item(
@@ -917,11 +1021,21 @@ def make_feed_item(
         )
 
     return {
-        "pmid": article["pmid"],
-        "title": article["title"],
-        "journal": article["journal"],
-        "abstract": article["abstract"],
-        "doi": article["doi"],
+        "pmid": article[
+            "pmid"
+        ],
+        "title": article[
+            "title"
+        ],
+        "journal": article[
+            "journal"
+        ],
+        "abstract": article[
+            "abstract"
+        ],
+        "doi": article[
+            "doi"
+        ],
         "pubmed_url": article[
             "pubmed_url"
         ],
@@ -931,11 +1045,18 @@ def make_feed_item(
         "publication_date": article[
             "publication_date"
         ],
-        "detected_free_at": detected_free_at,
+        "detected_free_at": (
+            detected_free_at
+        ),
     }
 
 
 def build_feed(feed_items):
+    """
+    Constrói o ficheiro RSS.
+
+    O XML é validado com ElementTree antes de ser gravado.
+    """
 
     now = datetime.now(
         timezone.utc
@@ -989,31 +1110,30 @@ def build_feed(feed_items):
         )
 
         # ----------------------------------------------------
-        # IMPORTANTE
+        # IMPORTANTE:
         #
-        # Há apenas UM CDATA:
+        # Não existe CDATA aqui.
         #
-        # <description><![CDATA[ ... ]]></description>
-        #
-        # Não existe CDATA dentro de description.
+        # A description contém XML escapado e é diretamente
+        # incorporada no documento.
         # ----------------------------------------------------
 
         rss_items.append(
             f"""
-            <item>
-                <title>{xml_escape(item["title"])}</title>
+        <item>
+            <title>{xml_escape(item.get("title", ""))}</title>
 
-                <link>{xml_escape(item["pubmed_url"])}</link>
+            <link>{xml_escape(item.get("pubmed_url", ""))}</link>
 
-                <guid isPermaLink="true">{xml_escape(item["pubmed_url"])}</guid>
+            <guid isPermaLink="true">{xml_escape(item.get("pubmed_url", ""))}</guid>
 
-                <pubDate>{format_datetime(detected_at)}</pubDate>
+            <pubDate>{format_datetime(detected_at)}</pubDate>
 
-                <description><![CDATA[{description}]]></description>
+            <description>{description}</description>
 
-                <category>{xml_escape(item["journal"])}</category>
-            </item>
-            """
+            <category>{xml_escape(item.get("journal", ""))}</category>
+        </item>
+        """
         )
 
     # --------------------------------------------------------
@@ -1058,13 +1178,7 @@ def build_feed(feed_items):
 """
 
     # --------------------------------------------------------
-    # VALIDAÇÃO
-    #
-    # Antes de escrever o ficheiro, verificamos se o XML
-    # é realmente válido.
-    #
-    # Se houver algum problema, o workflow falha aqui,
-    # em vez de publicar um RSS corrompido.
+    # VALIDAR XML ANTES DE PUBLICAR
     # --------------------------------------------------------
 
     try:
@@ -1123,13 +1237,13 @@ def main():
     )
 
     # --------------------------------------------------------
-    # Histórico
+    # HISTÓRICO
     # --------------------------------------------------------
 
     seen = load_seen()
 
     # --------------------------------------------------------
-    # Filtros de título
+    # FILTROS DE TÍTULO
     # --------------------------------------------------------
 
     excluded_title_rules = (
@@ -1143,7 +1257,9 @@ def main():
 
     for rule in excluded_title_rules:
 
-        if rule["case_sensitive"]:
+        if rule[
+            "case_sensitive"
+        ]:
 
             print(
                 f"   - CASE:{rule['text']}"
@@ -1156,7 +1272,7 @@ def main():
             )
 
     # --------------------------------------------------------
-    # PubMed
+    # PUBMED
     # --------------------------------------------------------
 
     print(
@@ -1170,7 +1286,7 @@ def main():
     )
 
     # --------------------------------------------------------
-    # Metadados
+    # METADADOS
     # --------------------------------------------------------
 
     print(
@@ -1186,7 +1302,7 @@ def main():
     )
 
     # --------------------------------------------------------
-    # Artigos que já estão no feed
+    # ARTIGOS QUE JÁ ESTÃO NO FEED
     # --------------------------------------------------------
 
     feed_items = []
@@ -1206,7 +1322,7 @@ def main():
             )
 
     # --------------------------------------------------------
-    # Detectar artigos novos
+    # DETECTAR ARTIGOS NOVOS
     # --------------------------------------------------------
 
     newly_free = []
@@ -1217,7 +1333,9 @@ def main():
 
     for article in articles:
 
-        pmid = article["pmid"]
+        pmid = article[
+            "pmid"
+        ]
 
         # ----------------------------------------------------
         # FILTRO DE TÍTULO
@@ -1225,7 +1343,9 @@ def main():
 
         matches, matched_word = (
             title_matches_exclusion(
-                article["title"],
+                article[
+                    "title"
+                ],
                 excluded_title_rules,
             )
         )
@@ -1247,7 +1367,7 @@ def main():
             continue
 
         # ----------------------------------------------------
-        # Verificar embargo
+        # VERIFICAR EMBARGO
         # ----------------------------------------------------
 
         if not embargo_elapsed(
@@ -1257,7 +1377,7 @@ def main():
             continue
 
         # ----------------------------------------------------
-        # Verificar se já foi detectado
+        # VERIFICAR SE JÁ FOI DETECTADO
         # ----------------------------------------------------
 
         if pmid in seen:
@@ -1265,7 +1385,7 @@ def main():
             continue
 
         # ----------------------------------------------------
-        # É novo para o nosso feed
+        # É NOVO PARA O NOSSO FEED
         # ----------------------------------------------------
 
         print(
@@ -1294,7 +1414,7 @@ def main():
         )
 
         # ----------------------------------------------------
-        # Guardar no histórico
+        # GUARDAR NO HISTÓRICO
         # ----------------------------------------------------
 
         seen[pmid] = {
@@ -1312,7 +1432,7 @@ def main():
         }
 
     # --------------------------------------------------------
-    # Adicionar novos artigos ao feed
+    # ADICIONAR NOVOS ARTIGOS AO FEED
     # --------------------------------------------------------
 
     feed_items.extend(
@@ -1320,7 +1440,7 @@ def main():
     )
 
     # --------------------------------------------------------
-    # Remover duplicados por PMID
+    # REMOVER DUPLICADOS POR PMID
     # --------------------------------------------------------
 
     unique_items = {}
@@ -1336,7 +1456,7 @@ def main():
     )
 
     # --------------------------------------------------------
-    # Atualizar RSS
+    # ATUALIZAR RSS
     # --------------------------------------------------------
 
     print(
@@ -1348,12 +1468,16 @@ def main():
     )
 
     # --------------------------------------------------------
-    # Guardar histórico
+    # GUARDAR HISTÓRICO
     # --------------------------------------------------------
 
     save_seen(
         seen
     )
+
+    # --------------------------------------------------------
+    # RESULTADO
+    # --------------------------------------------------------
 
     print(
         "\n======================================"
@@ -1372,6 +1496,10 @@ def main():
         "======================================"
     )
 
+
+# ============================================================
+# EXECUÇÃO
+# ============================================================
 
 if __name__ == "__main__":
     main()
