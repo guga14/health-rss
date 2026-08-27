@@ -25,29 +25,16 @@ DATA_DIR = Path("data")
 FEED_FILE = PUBLIC_DIR / "jama-free.xml"
 SEEN_FILE = DATA_DIR / "seen.json"
 
-# Número máximo de artigos que permanecem no RSS.
 MAX_FEED_ITEMS = 200
 
-# Procuramos artigos publicados nos últimos 450 dias.
-# Isto cobre o embargo de 12 meses com margem.
 LOOKBACK_DAYS = 450
 
-# Número máximo de resultados do PubMed por pesquisa.
 RETMAX = 1000
 
 
 # ============================================================
 # REVISTAS JAMA E PERÍODO DE ACESSO
 # ============================================================
-
-# Valor em meses:
-#
-# 0  = imediatamente open access
-# 6  = gratuito após 6 meses
-# 12 = gratuito após 12 meses
-#
-# IMPORTANTE:
-# Esta lista pode ser ampliada posteriormente.
 
 JOURNALS = {
     "JAMA": 6,
@@ -61,8 +48,10 @@ JOURNALS = {
     "JAMA Neurology": 12,
     "JAMA Oncology": 12,
     "JAMA Ophthalmology": 12,
+    "JAMA Otolaryngology-Head & Neck Surgery": 12,
     "JAMA Pediatrics": 12,
     "JAMA Psychiatry": 12,
+    "JAMA Surgery": 12,
 }
 
 
@@ -158,198 +147,230 @@ def search_pubmed():
 def fetch_pubmed(pmids):
     """
     Obtém os metadados completos dos artigos.
+
+    Os PMIDs são processados em pequenos lotes para evitar
+    URLs demasiado longas nas chamadas às NCBI E-utilities.
     """
 
     if not pmids:
         return []
 
-    data = ncbi_get(
-        "efetch.fcgi",
-        {
-            "db": "pubmed",
-            "id": ",".join(pmids),
-            "retmode": "xml",
-        },
-    )
-
-    root = ET.fromstring(data)
-
     articles = []
 
-    for article in root.findall(
-        ".//PubmedArticle"
+    # Processar no máximo 100 PMIDs por pedido.
+    BATCH_SIZE = 100
+
+    for i in range(
+        0,
+        len(pmids),
+        BATCH_SIZE,
     ):
 
-        medline = article.find(
-            "MedlineCitation"
+        batch = pmids[
+            i:i + BATCH_SIZE
+        ]
+
+        print(
+            f"   A obter artigos "
+            f"{i + 1}-{min(i + BATCH_SIZE, len(pmids))} "
+            f"de {len(pmids)}..."
         )
 
-        if medline is None:
-            continue
-
-        pmid_element = medline.find("PMID")
-
-        if pmid_element is None:
-            continue
-
-        pmid = pmid_element.text
-
-        article_node = medline.find("Article")
-
-        if article_node is None:
-            continue
-
-        # ----------------------------------------------------
-        # TÍTULO
-        # ----------------------------------------------------
-
-        title_node = article_node.find(
-            "ArticleTitle"
-        )
-
-        title = ""
-
-        if title_node is not None:
-            title = "".join(
-                title_node.itertext()
-            ).strip()
-
-        # ----------------------------------------------------
-        # REVISTA
-        # ----------------------------------------------------
-
-        journal = ""
-
-        journal_node = article_node.find(
-            "Journal"
-        )
-
-        if journal_node is not None:
-
-            journal_title = journal_node.find(
-                "Title"
-            )
-
-            if journal_title is not None:
-                journal = (
-                    journal_title.text or ""
-                )
-
-        # ----------------------------------------------------
-        # ABSTRACT
-        # ----------------------------------------------------
-
-        abstract_parts = []
-
-        for abstract_text in article_node.findall(
-            ".//Abstract/AbstractText"
-        ):
-
-            text = "".join(
-                abstract_text.itertext()
-            ).strip()
-
-            if text:
-                abstract_parts.append(text)
-
-        abstract = " ".join(
-            abstract_parts
-        )
-
-        # ----------------------------------------------------
-        # DOI
-        # ----------------------------------------------------
-
-        doi = None
-
-        for aid in article.findall(
-            ".//ArticleId"
-        ):
-
-            if aid.attrib.get(
-                "IdType"
-            ) == "doi":
-
-                doi = aid.text
-
-                break
-
-        # ----------------------------------------------------
-        # URL PUBMED
-        # ----------------------------------------------------
-
-        pubmed_url = (
-            "https://pubmed.ncbi.nlm.nih.gov/"
-            f"{pmid}/"
-        )
-
-        # ----------------------------------------------------
-        # DATA DE PUBLICAÇÃO
-        # ----------------------------------------------------
-
-        publication_date = (
-            extract_publication_date(
-                article_node
-            )
-        )
-
-        # ----------------------------------------------------
-        # PMC
-        # ----------------------------------------------------
-
-        pmc_id = None
-
-        for article_id in article.findall(
-            ".//PubmedData/ArticleIdList/ArticleId"
-        ):
-
-            if article_id.attrib.get(
-                "IdType"
-            ) == "pmc":
-
-                pmc_id = article_id.text
-
-                break
-
-        pmc_url = None
-
-        if pmc_id:
-
-            pmc_url = (
-                "https://pmc.ncbi.nlm.nih.gov/"
-                "articles/"
-                f"{pmc_id}/"
-            )
-
-        # ----------------------------------------------------
-        # TIPOS DE PUBLICAÇÃO
-        # ----------------------------------------------------
-
-        publication_types = []
-
-        for pub_type in article_node.findall(
-            ".//PublicationTypeList/PublicationType"
-        ):
-
-            if pub_type.text:
-                publication_types.append(
-                    pub_type.text
-                )
-
-        articles.append(
+        data = ncbi_get(
+            "efetch.fcgi",
             {
-                "pmid": pmid,
-                "title": title,
-                "journal": journal,
-                "abstract": abstract,
-                "doi": doi,
-                "pubmed_url": pubmed_url,
-                "pmc_id": pmc_id,
-                "pmc_url": pmc_url,
-                "publication_date": publication_date,
-                "publication_types": publication_types,
-            }
+                "db": "pubmed",
+                "id": ",".join(batch),
+                "retmode": "xml",
+            },
         )
+
+        root = ET.fromstring(data)
+
+        for article in root.findall(
+            ".//PubmedArticle"
+        ):
+
+            medline = article.find(
+                "MedlineCitation"
+            )
+
+            if medline is None:
+                continue
+
+            pmid_element = medline.find(
+                "PMID"
+            )
+
+            if pmid_element is None:
+                continue
+
+            pmid = pmid_element.text
+
+            article_node = medline.find(
+                "Article"
+            )
+
+            if article_node is None:
+                continue
+
+            # ------------------------------------------------
+            # TÍTULO
+            # ------------------------------------------------
+
+            title_node = article_node.find(
+                "ArticleTitle"
+            )
+
+            title = ""
+
+            if title_node is not None:
+                title = "".join(
+                    title_node.itertext()
+                ).strip()
+
+            # ------------------------------------------------
+            # REVISTA
+            # ------------------------------------------------
+
+            journal = ""
+
+            journal_node = article_node.find(
+                "Journal"
+            )
+
+            if journal_node is not None:
+
+                journal_title = journal_node.find(
+                    "Title"
+                )
+
+                if journal_title is not None:
+                    journal = (
+                        journal_title.text or ""
+                    )
+
+            # ------------------------------------------------
+            # ABSTRACT
+            # ------------------------------------------------
+
+            abstract_parts = []
+
+            for abstract_text in article_node.findall(
+                ".//Abstract/AbstractText"
+            ):
+
+                text = "".join(
+                    abstract_text.itertext()
+                ).strip()
+
+                if text:
+                    abstract_parts.append(
+                        text
+                    )
+
+            abstract = " ".join(
+                abstract_parts
+            )
+
+            # ------------------------------------------------
+            # DOI
+            # ------------------------------------------------
+
+            doi = None
+
+            for aid in article.findall(
+                ".//ArticleId"
+            ):
+
+                if aid.attrib.get(
+                    "IdType"
+                ) == "doi":
+
+                    doi = aid.text
+
+                    break
+
+            # ------------------------------------------------
+            # URL PUBMED
+            # ------------------------------------------------
+
+            pubmed_url = (
+                "https://pubmed.ncbi.nlm.nih.gov/"
+                f"{pmid}/"
+            )
+
+            # ------------------------------------------------
+            # DATA DE PUBLICAÇÃO
+            # ------------------------------------------------
+
+            publication_date = (
+                extract_publication_date(
+                    article_node
+                )
+            )
+
+            # ------------------------------------------------
+            # PMC
+            # ------------------------------------------------
+
+            pmc_id = None
+
+            for article_id in article.findall(
+                ".//PubmedData/ArticleIdList/ArticleId"
+            ):
+
+                if article_id.attrib.get(
+                    "IdType"
+                ) == "pmc":
+
+                    pmc_id = article_id.text
+
+                    break
+
+            pmc_url = None
+
+            if pmc_id:
+
+                pmc_url = (
+                    "https://pmc.ncbi.nlm.nih.gov/"
+                    "articles/"
+                    f"{pmc_id}/"
+                )
+
+            # ------------------------------------------------
+            # TIPOS DE PUBLICAÇÃO
+            # ------------------------------------------------
+
+            publication_types = []
+
+            for pub_type in article_node.findall(
+                ".//PublicationTypeList/PublicationType"
+            ):
+
+                if pub_type.text:
+                    publication_types.append(
+                        pub_type.text
+                    )
+
+            # ------------------------------------------------
+            # ARTIGO
+            # ------------------------------------------------
+
+            articles.append(
+                {
+                    "pmid": pmid,
+                    "title": title,
+                    "journal": journal,
+                    "abstract": abstract,
+                    "doi": doi,
+                    "pubmed_url": pubmed_url,
+                    "pmc_id": pmc_id,
+                    "pmc_url": pmc_url,
+                    "publication_date": publication_date,
+                    "publication_types": publication_types,
+                }
+            )
 
     return articles
 
@@ -417,6 +438,7 @@ def extract_publication_date(
 
 
 def month_to_number(month):
+
     if not month:
         return 1
 
@@ -892,9 +914,7 @@ def main():
     )
 
     # --------------------------------------------------------
-    # Itens que já estão no feed.
-    #
-    # São armazenados dentro do próprio seen.json.
+    # Artigos que já estão no feed
     # --------------------------------------------------------
 
     feed_items = []
@@ -928,7 +948,7 @@ def main():
         pmid = article["pmid"]
 
         # ----------------------------------------------------
-        # Primeiro: verificar embargo
+        # Verificar embargo
         # ----------------------------------------------------
 
         if not embargo_elapsed(
@@ -937,7 +957,7 @@ def main():
             continue
 
         # ----------------------------------------------------
-        # Segundo: verificar se já detectamos
+        # Verificar se já foi detectado
         # ----------------------------------------------------
 
         if pmid in seen:
