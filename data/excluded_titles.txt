@@ -1,3 +1,10 @@
-# Tipos de artigos que não quero no RSS. Uma palavra ou expressão por linha. Case-insensitive.
+# Tipos de artigos que não quero no RSS. Uma palavra ou expressão por linha.
 
+# Case-insensitive
 medicare
+medicaid
+united states
+
+# Case-sensitive
+CASE:US
+CASE:USA
