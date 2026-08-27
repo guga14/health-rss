@@ -1,40 +1,30 @@
 name: Update JAMA Free Access RSS
 
 on:
+  push:
+    branches:
+      - main
 
-  # Executar todos os dias às 07:15 UTC.
   schedule:
     - cron: "15 7 * * *"
 
-  # Permite executar manualmente pelo GitHub.
   workflow_dispatch:
 
 
-# Permissão necessária para o workflow
-# poder fazer commit das alterações.
 permissions:
   contents: write
 
 
 jobs:
-
   update:
 
     runs-on: ubuntu-latest
 
     steps:
 
-      # ------------------------------------------------------
-      # Baixar o repositório
-      # ------------------------------------------------------
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
-
-      # ------------------------------------------------------
-      # Instalar Python
-      # ------------------------------------------------------
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -42,43 +32,30 @@ jobs:
           python-version: "3.12"
 
 
-      # ------------------------------------------------------
-      # Executar o programa
-      # ------------------------------------------------------
-
       - name: Update RSS feed
         env:
           NCBI_EMAIL: ${{ secrets.NCBI_EMAIL }}
-
         run: |
           python src/update_feed.py
 
-
-      # ------------------------------------------------------
-      # Guardar alterações no Git
-      # ------------------------------------------------------
 
       - name: Commit updated feed
         run: |
 
           git config user.name "JAMA Free RSS Bot"
 
-          git config user.email \
-            "actions@users.noreply.github.com"
+          git config user.email "actions@users.noreply.github.com"
 
           git add public/jama-free.xml
-
           git add data/seen.json
 
-          # Só faz commit se houver alterações.
           if git diff --cached --quiet; then
 
             echo "Nenhuma alteração."
 
           else
 
-            git commit \
-              -m "Update JAMA free-access feed"
+            git commit -m "Update JAMA free-access feed"
 
             git push
 
