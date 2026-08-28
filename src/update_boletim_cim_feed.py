@@ -46,7 +46,6 @@ def fetch_page(url):
 
     É usado um User-Agent identificando o projeto.
     """
-
     request = Request(
         url,
         headers={
@@ -67,7 +66,6 @@ def fetch_page(url):
         request,
         timeout=60,
     ) as response:
-
         content = response.read()
 
         charset = (
@@ -224,15 +222,10 @@ def score_link(
     """
     Atribui uma pontuação a um link.
 
-    Quanto maior a pontuação, maior a probabilidade
-    de ser uma edição do Boletim do CIM.
-
-    O algoritmo usa simultaneamente:
-      - texto do link;
-      - URL;
-      - PDF;
-      - palavras-chave;
-      - exclusão de links claramente irrelevantes.
+    Mantido para compatibilidade com o restante do programa.
+    A seleção do Boletim já não depende desta pontuação:
+    a regra da página é que o primeiro PDF é a publicação
+    mais recente.
     """
 
     text = clean_text(
@@ -330,9 +323,17 @@ def find_bulletins(
     html_content,
 ):
     """
-    Encontra candidatos a edições do Boletim do CIM.
+    Encontra a publicação mais recente do Boletim do CIM.
 
-    Mantém a ordem original da página.
+    A página do CIM é mantida pela Ordem dos Farmacêuticos
+    com a publicação mais recente como o primeiro PDF da página.
+
+    Por isso, a ordem dos links no HTML é a fonte de verdade:
+    o primeiro PDF do domínio da Ordem é o Boletim mais recente.
+
+    É devolvido apenas um candidato, para que o restante do
+    programa (título, histórico e geração do RSS) continue a
+    funcionar sem alterações.
     """
 
     parser = LinkParser()
@@ -340,8 +341,6 @@ def find_bulletins(
     parser.feed(
         html_content
     )
-
-    candidates = []
 
     for position, raw_link in enumerate(
         parser.links
@@ -365,8 +364,7 @@ def find_bulletins(
 
         # Apenas links do domínio da Ordem.
         hostname = (
-            urlparse(url)
-            .hostname
+            urlparse(url).hostname
             or ""
         ).lower()
 
@@ -375,30 +373,24 @@ def find_bulletins(
                 "ordemfarmaceuticos.pt"
             )
         ):
-
             continue
 
-        link = {
-            "url": url,
-            "text": text,
-            "position": position,
-        }
+        # A regra da página é:
+        # o primeiro PDF é a publicação mais recente.
+        # Ignoramos todos os restantes links.
+        if not is_pdf(url):
+            continue
 
-        score = score_link(
-            link
-        )
+        return [
+            {
+                "url": url,
+                "text": text,
+                "position": position,
+                "score": 100,
+            }
+        ]
 
-        # Só aceitamos candidatos que tenham sinais
-        # suficientes de serem Boletim do CIM.
-        if score >= 40:
-
-            link["score"] = score
-
-            candidates.append(
-                link
-            )
-
-    return candidates
+    return []
 
 
 # ============================================================
@@ -426,7 +418,6 @@ def extract_issue_title(
     # Se o texto do link é suficientemente informativo,
     # usamos o texto.
     if text:
-
         if len(text) >= 8:
             return text
 
@@ -726,7 +717,6 @@ def build_feed(
     <ttl>1440</ttl>
 
 {items}
-
   </channel>
 </rss>
 """.format(
@@ -814,53 +804,35 @@ def main():
     if not candidates:
 
         raise RuntimeError(
-            "Não foi encontrado nenhum link "
-            "que pareça corresponder ao Boletim "
-            "do CIM. O site pode ter alterado "
+            "Não foi encontrado nenhum PDF "
+            "na página do Boletim do CIM. "
+            "O site pode ter alterado "
             "a sua estrutura."
         )
 
     # --------------------------------------------------------
-    # Mostrar candidatos no log
+    # Mostrar candidato no log
     # --------------------------------------------------------
 
     print(
-        "\nCandidatos:"
+        "\nCandidato selecionado:"
     )
 
-    for candidate in candidates[:20]:
+    for candidate in candidates[:1]:
 
         print(
-            f"   score={candidate['score']:3d} "
-            f"| {candidate['text'][:80]} "
+            f"   posição={candidate['position']} "
+            f"| {candidate['text'][:120]} "
             f"| {candidate['url']}"
         )
 
     # --------------------------------------------------------
-    # Escolher o melhor candidato
+    # Escolher o candidato
     # --------------------------------------------------------
 
-    # A página é mantida pela Ordem com a edição mais recente
-    # acima das anteriores. Por isso, entre candidatos com
-    # pontuação equivalente, damos prioridade à posição mais
-    # alta na página.
-    best_score = max(
-        candidate["score"]
-        for candidate in candidates
-    )
-
-    best_candidates = [
-        candidate
-        for candidate in candidates
-        if candidate["score"] == best_score
-    ]
-
-    latest = min(
-        best_candidates,
-        key=lambda candidate: candidate[
-            "position"
-        ],
-    )
+    # find_bulletins() devolve deliberadamente apenas
+    # o primeiro PDF da página.
+    latest = candidates[0]
 
     title = extract_issue_title(
         latest
@@ -1005,4 +977,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
