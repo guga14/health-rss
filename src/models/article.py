@@ -1,3 +1,4 @@
+#O que é um artigo.
 from dataclasses import dataclass, field
 from datetime import datetime
 from hashlib import sha256

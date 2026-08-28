@@ -1,4 +1,4 @@
-#Representa uma origem de informação, enquanto a configuração concreta dessa origem fica em config/sources/*.yml. O Source apenas diz: "Aqui estão as instruções que o mecanismo de recolha deve utilizar."
+#O que é uma fonte. Representa uma origem de informação, enquanto a configuração concreta dessa origem fica em config/sources/*.yml. O Source apenas diz: "Aqui estão as instruções que o mecanismo de recolha deve utilizar."
 from dataclasses import dataclass, field
 from typing import Any
 
