@@ -1,752 +1,622 @@
+```python
 #!/usr/bin/env python3
 
 import hashlib
 import html
-import json
-import os
 import re
-import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
-from email.utils import format_datetime
 from html.parser import HTMLParser
-from pathlib import Path
-from urllib.parse import urljoin, urlparse
-from urllib.request import Request, urlopen
+from urllib.parse import urljoin
+from xml.etree import ElementTree as ET
+
+import requests
 
 
 # ============================================================
 # CONFIGURAÇÃO
 # ============================================================
 
-SOURCE_URL = (
-    "https://ordemfarmaceuticos.pt/"
-    "pt/CIM/INDICE-DE-PUBLICACOES/"
-)
-
-SITE_ROOT = "https://ordemfarmaceuticos.pt/"
-
-PUBLIC_DIR = Path("public")
-DATA_DIR = Path("data")
-
-FEED_FILE = PUBLIC_DIR / "boletim_cim.xml"
-SEEN_FILE = DATA_DIR / "boletim_cim_seen.json"
-
+SOURCE_URL = "https://ordemfarmaceuticos.pt/pt/CIM/INDICE-DE-PUBLICACOES/"
 FEED_TITLE = "Boletim do CIM — Ordem dos Farmacêuticos"
+FEED_LINK = SOURCE_URL
+FEED_DESCRIPTION = (
+    "Novas publicações do Boletim do CIM da Ordem dos Farmacêuticos."
+)
+FEED_LANGUAGE = "pt-PT"
+FEED_TTL = "1440"
 
-MAX_FEED_ITEMS = 100
+OUTPUT_FILE = "boletim_cim.xml"
+
+HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (compatible; health-rss/1.0; "
+        "+https://github.com/guga14/health-rss)"
+    )
+}
+
+REQUEST_TIMEOUT = 30
 
 
 # ============================================================
-# HTTP
+# PERÍODOS
 # ============================================================
 
-def fetch_page(url):
-    """
-    Obtém o HTML da página da Ordem dos Farmacêuticos.
+PERIOD_ORDER = {
+    "Jan-Fev": 1,
+    "Jan-Mar": 1,
+    "Mar-Abr": 2,
+    "Mai-Ago": 3,
+    "Abr-Jun": 2,
+    "Set-Out": 3,
+    "Jul-Set": 3,
+    "Out-Dez": 4,
+    "Nov-Dez": 4,
+}
 
-    É usado um User-Agent identificando o projeto.
+# Datas representativas para pubDate.
+# Não pretendemos afirmar que esta foi a data exata de publicação;
+# servem para manter a ordenação cronológica do arquivo.
+PERIOD_END_MONTH = {
+    "Jan-Fev": (2, 28),
+    "Jan-Mar": (3, 31),
+    "Mar-Abr": (4, 30),
+    "Mai-Ago": (8, 31),
+    "Abr-Jun": (6, 30),
+    "Set-Out": (10, 31),
+    "Jul-Set": (9, 30),
+    "Out-Dez": (12, 31),
+    "Nov-Dez": (12, 31),
+}
+
+
+# ============================================================
+# PARSER DA PÁGINA
+# ============================================================
+
+class CIMParser(HTMLParser):
     """
-    request = Request(
-        url,
-        headers={
-            "User-Agent": (
-                "Mozilla/5.0 "
-                "(compatible; HealthRSS/1.0; "
-                "+https://github.com/)"
-            ),
-            "Accept": (
-                "text/html,application/xhtml+xml,"
-                "application/xml;q=0.9,*/*;q=0.8"
-            ),
-            "Accept-Language": "pt-PT,pt;q=0.9,en;q=0.8",
-        },
+    Extrai:
+
+        ano
+        período
+        título
+        URL
+
+    da secção BOLETIM DO CIM.
+
+    A página da Ordem tem HTML bastante irregular e, por isso,
+    não dependemos da profundidade dos <div>s nem de classes
+    específicas.
+    """
+
+    YEAR_RE = re.compile(r"^\s*(20\d{2})\s*$")
+    PERIOD_RE = re.compile(
+        r"^\s*(Jan-Mar|Jan-Fev|Mar-Abr|Abr-Jun|Mai-Ago|"
+        r"Jul-Set|Set-Out|Out-Dez|Nov-Dez)\s*\|?"
     )
 
-    with urlopen(
-        request,
-        timeout=60,
-    ) as response:
-        content = response.read()
+    def __init__(self, source_url):
+        super().__init__(convert_charrefs=True)
 
-        charset = (
-            response.headers.get_content_charset()
-            or "utf-8"
-        )
+        self.source_url = source_url
 
-        return content.decode(
-            charset,
-            errors="replace",
-        )
+        self.current_year = None
+        self.current_period = None
 
+        self.in_anchor = False
+        self.anchor_href = None
+        self.anchor_text = []
 
-# ============================================================
-# PARSER HTML
-# ============================================================
+        self.items = []
 
-class LinkParser(HTMLParser):
-    """
-    Extrai todos os links <a href="..."> da página,
-    preservando a ordem em que aparecem no HTML.
-    """
+        self.text_buffer = []
 
-    def __init__(self):
-        super().__init__(
-            convert_charrefs=True
-        )
+        # Mantemos uma pequena pilha/contexto para conseguirmos
+        # identificar anos mesmo quando estão dentro de <table>.
+        self.tag_stack = []
 
-        self.links = []
+    def handle_starttag(self, tag, attrs):
+        tag = tag.lower()
+        self.tag_stack.append(tag)
 
-        self.current_href = None
-        self.current_text = []
+        if tag == "a":
+            attrs_dict = dict(attrs)
 
-    def handle_starttag(
-        self,
-        tag,
-        attrs,
-    ):
-
-        if tag.lower() != "a":
-            return
-
-        attributes = dict(attrs)
-
-        href = attributes.get(
-            "href"
-        )
-
-        if not href:
-            return
-
-        self.current_href = href
-        self.current_text = []
-
-    def handle_data(self, data):
-
-        if self.current_href is not None:
-
-            self.current_text.append(
-                data
-            )
+            self.in_anchor = True
+            self.anchor_href = attrs_dict.get("href")
+            self.anchor_text = []
 
     def handle_endtag(self, tag):
+        tag = tag.lower()
 
-        if (
-            tag.lower() == "a"
-            and self.current_href is not None
-        ):
+        if tag == "a" and self.in_anchor:
+            self.finish_anchor()
 
-            text = " ".join(
-                self.current_text
-            )
+        if self.tag_stack:
+            # HTML irregular pode provocar situações pouco comuns;
+            # retiramos apenas o último elemento correspondente.
+            if self.tag_stack[-1] == tag:
+                self.tag_stack.pop()
+            elif tag in self.tag_stack:
+                index = len(self.tag_stack) - 1 - self.tag_stack[::-1].index(tag)
+                del self.tag_stack[index]
 
-            text = re.sub(
-                r"\s+",
-                " ",
-                text,
-            ).strip()
+    def handle_data(self, data):
+        if not data:
+            return
 
-            self.links.append(
-                {
-                    "href": self.current_href,
-                    "text": text,
-                }
-            )
+        clean = html.unescape(data).replace("\xa0", " ")
+        clean = re.sub(r"\s+", " ", clean).strip()
 
-            self.current_href = None
-            self.current_text = []
+        if not clean:
+            return
 
+        if self.in_anchor:
+            self.anchor_text.append(clean)
+            return
 
-# ============================================================
-# NORMALIZAÇÃO
-# ============================================================
+        # Procuramos anos em qualquer texto fora de links.
+        year_match = self.YEAR_RE.match(clean)
 
-def normalize_url(
-    href,
-    base_url,
-):
-    """
-    Converte URLs relativas em URLs absolutas.
-    """
+        if year_match:
+            year = int(year_match.group(1))
 
-    href = html.unescape(
-        href.strip()
-    )
+            # A página contém anos de 2011 em diante.
+            if 2000 <= year <= 2100:
+                self.current_year = year
+                self.current_period = None
+                return
 
-    if not href:
-        return None
+        # Também procuramos períodos em texto fora do <a>.
+        period_match = self.PERIOD_RE.match(clean)
 
-    if href.startswith(
-        ("javascript:", "mailto:", "#")
-    ):
-        return None
+        if period_match:
+            self.current_period = period_match.group(1)
 
-    return urljoin(
-        base_url,
-        href,
-    )
+    def finish_anchor(self):
+        title = " ".join(self.anchor_text)
+        title = html.unescape(title)
+        title = title.replace("\xa0", " ")
+        title = re.sub(r"\s+", " ", title).strip()
 
+        href = self.anchor_href
 
-def clean_text(text):
+        self.in_anchor = False
+        self.anchor_href = None
+        self.anchor_text = []
 
-    text = html.unescape(
-        text or ""
-    )
+        if not href or not title:
+            return
 
-    text = re.sub(
-        r"\s+",
-        " ",
-        text,
-    )
+        # Ignorar links internos que não sejam publicações.
+        if href.startswith("#"):
+            return
 
-    return text.strip()
+        # Ignorar extensões Chrome que aparecem ocasionalmente
+        # quando a página foi copiada/alterada por uma extensão.
+        if href.startswith("chrome-extension://"):
+            return
 
+        # URLs absolutas ou relativas.
+        absolute_url = urljoin(self.source_url, href)
 
-# ============================================================
-# DETEÇÃO DO BOLETIM
-# ============================================================
+        # Guardamos apenas links que estão associados a um ano.
+        if self.current_year is None:
+            return
 
-def is_pdf(url):
+        # Determinar período.
+        #
+        # Normalmente "Jan-Mar |" aparece imediatamente antes
+        # do <a>. O parser guarda esse estado.
+        #
+        # Se por alguma razão o período não tiver sido capturado,
+        # tentamos recuperá-lo do contexto textual imediatamente
+        # anterior através do método de fallback abaixo.
+        period = self.current_period
 
-    path = urlparse(
-        url
-    ).path.lower()
+        # A página atual da Ordem tem uma característica importante:
+        # depois de um período, podem existir vários <a> consecutivos.
+        # O período continua válido para todos esses links.
+        if period is None:
+            return
 
-    return path.endswith(
-        ".pdf"
-    )
-
-
-def score_link(
-    link,
-):
-    """
-    Atribui uma pontuação a um link.
-
-    Mantido para compatibilidade com o restante do programa.
-    A seleção do Boletim já não depende desta pontuação:
-    a regra da página é que o primeiro PDF é a publicação
-    mais recente.
-    """
-
-    text = clean_text(
-        link["text"]
-    )
-
-    url = link["url"]
-
-    combined = (
-        f"{text} {url}"
-    ).lower()
-
-    score = 0
-
-    # --------------------------------------------------------
-    # Sinais muito fortes
-    # --------------------------------------------------------
-
-    if "boletim do cim" in combined:
-        score += 100
-
-    if "boletim-cim" in combined:
-        score += 100
-
-    if "boletim_cim" in combined:
-        score += 100
-
-    # --------------------------------------------------------
-    # PDF
-    # --------------------------------------------------------
-
-    if is_pdf(url):
-        score += 30
-
-    # --------------------------------------------------------
-    # CIM
-    # --------------------------------------------------------
-
-    if "cim" in combined:
-        score += 10
-
-    # --------------------------------------------------------
-    # Palavras associadas a uma publicação/edição
-    # --------------------------------------------------------
-
-    for word in (
-        "boletim",
-        "edição",
-        "edicao",
-        "n.º",
-        "nº",
-        "numero",
-        "número",
-        "vol.",
-        "volume",
-    ):
-
-        if word in combined:
-            score += 10
-
-    # --------------------------------------------------------
-    # Sinais de que provavelmente NÃO é uma edição
-    # --------------------------------------------------------
-
-    negative_words = (
-        "contacto",
-        "contactos",
-        "login",
-        "registo",
-        "pesquisa",
-        "home",
-        "início",
-        "inicio",
-        "sobre nós",
-        "sobre nos",
-        "cim à tarde",
-        "cim a tarde",
-        "recursos de informação",
-        "recursos de informacao",
-        "breves questões terapêuticas",
-        "breves questoes terapeuticas",
-        "e-publicação",
-        "e-publicacao",
-    )
-
-    for word in negative_words:
-
-        if word in combined:
-            score -= 100
-
-    return score
-
-
-def find_bulletins(
-    html_content,
-):
-    """
-    Encontra a publicação mais recente do Boletim do CIM.
-
-    A página do CIM é mantida pela Ordem dos Farmacêuticos
-    com a publicação mais recente como o primeiro PDF da página.
-
-    Por isso, a ordem dos links no HTML é a fonte de verdade:
-    o primeiro PDF do domínio da Ordem é o Boletim mais recente.
-
-    É devolvido apenas um candidato, para que o restante do
-    programa (título, histórico e geração do RSS) continue a
-    funcionar sem alterações.
-    """
-
-    parser = LinkParser()
-
-    parser.feed(
-        html_content
-    )
-
-    for position, raw_link in enumerate(
-        parser.links
-    ):
-
-        href = raw_link[
-            "href"
-        ]
-
-        text = clean_text(
-            raw_link["text"]
-        )
-
-        url = normalize_url(
-            href,
-            SOURCE_URL,
-        )
-
-        if not url:
-            continue
-
-        # Apenas links do domínio da Ordem.
-        hostname = (
-            urlparse(url).hostname
-            or ""
-        ).lower()
-
-        if not (
-            hostname.endswith(
-                "ordemfarmaceuticos.pt"
-            )
-        ):
-            continue
-
-        # A regra da página é:
-        # o primeiro PDF é a publicação mais recente.
-        # Ignoramos todos os restantes links.
-        if not is_pdf(url):
-            continue
-
-        return [
+        # Guardar.
+        self.items.append(
             {
-                "url": url,
-                "text": text,
-                "position": position,
-                "score": 100,
+                "year": self.current_year,
+                "period": period,
+                "title": title,
+                "url": absolute_url,
             }
+        )
+
+
+# ============================================================
+# PARSER MAIS ROBUSTO PARA OS PERÍODOS
+# ============================================================
+
+def parse_cim_page(content):
+    """
+    Faz o parsing da página.
+
+    Primeiro usa CIMParser. Depois executa uma segunda passagem
+    textual para corrigir uma particularidade do HTML da Ordem:
+
+        "Abr-Jun | <a>...</a><br> Abr-Jun | <a>...</a>"
+
+    e casos em que o período aparece imediatamente antes do link.
+    """
+
+    parser = CIMParser(SOURCE_URL)
+    parser.feed(content)
+
+    items = parser.items
+
+    # Em páginas HTML muito irregulares, alguns períodos podem não
+    # ficar corretamente associados aos anchors. Por isso fazemos
+    # uma segunda extração baseada na sequência textual.
+    if not items:
+        return parse_cim_page_fallback(content)
+
+    # Verificação de qualidade.
+    #
+    # Se encontrarmos poucos itens apesar de existirem muitos anchors
+    # de publicação, utilizamos o fallback.
+    publication_like_links = re.findall(
+        r'<a\b[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)</a>',
+        content,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+
+    if len(items) < max(5, len(publication_like_links) // 3):
+        fallback_items = parse_cim_page_fallback(content)
+
+        if len(fallback_items) > len(items):
+            return fallback_items
+
+    return items
+
+
+def parse_cim_page_fallback(content):
+    """
+    Fallback especialmente tolerante.
+
+    Remove tags mantendo separadores e percorre os anchors pela
+    ordem em que aparecem no HTML.
+
+    A associação ano/período é feita olhando para o texto que
+    precede cada anchor.
+    """
+
+    # Primeiro encontramos todos os anos e anchors em sequência.
+    token_re = re.compile(
+        r"(?P<year>\b20(?:1[0-9]|2[0-9])\b)"
+        r"|(?P<period>\b(?:Jan-Mar|Jan-Fev|Mar-Abr|Abr-Jun|Mai-Ago|"
+        r"Jul-Set|Set-Out|Out-Dez|Nov-Dez)\b)"
+        r"|(?P<a><a\b[^>]*href=[\"'](?P<href>[^\"']+)[\"'][^>]*>"
+        r"(?P<title>.*?)</a>)",
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+
+    current_year = None
+    current_period = None
+
+    items = []
+
+    for match in token_re.finditer(content):
+        if match.group("year"):
+            current_year = int(match.group("year"))
+            current_period = None
+            continue
+
+        if match.group("period"):
+            current_period = match.group("period")
+            continue
+
+        href = match.group("href")
+        title_html = match.group("title")
+
+        if not href or not title_html:
+            continue
+
+        # Remover HTML do título.
+        title = re.sub(r"<[^>]+>", " ", title_html)
+        title = html.unescape(title)
+        title = title.replace("\xa0", " ")
+        title = re.sub(r"\s+", " ", title).strip()
+
+        if not title or current_year is None or current_period is None:
+            continue
+
+        if href.startswith("#") or href.startswith("chrome-extension://"):
+            continue
+
+        absolute_url = urljoin(SOURCE_URL, href)
+
+        items.append(
+            {
+                "year": current_year,
+                "period": current_period,
+                "title": title,
+                "url": absolute_url,
+            }
+        )
+
+    return items
+
+
+# ============================================================
+# LIMPEZA / NORMALIZAÇÃO
+# ============================================================
+
+def normalize_title(title):
+    title = html.unescape(title)
+    title = title.replace("\xa0", " ")
+    title = re.sub(r"\s+", " ", title)
+    return title.strip()
+
+
+def normalize_url(url):
+    url = html.unescape(url).strip()
+
+    # Corrigir alguns URLs antigos que aparecem com www.
+    if url.startswith("http://www.ordemfarmaceuticos.pt"):
+        url = "http://ordemfarmaceuticos.pt" + url[
+            len("http://www.ordemfarmaceuticos.pt") :
         ]
 
-    return []
+    if url.startswith("https://www.ordemfarmaceuticos.pt"):
+        url = "https://ordemfarmaceuticos.pt" + url[
+            len("https://www.ordemfarmaceuticos.pt") :
+        ]
+
+    return url
+
+
+def clean_items(items):
+    """
+    Limpa e deduplica.
+
+    IMPORTANTE:
+    Não deduplicamos apenas pelo URL.
+
+    Isto é deliberado porque a página contém situações como:
+
+        PDF X -> Título A
+        PDF X -> Título B
+
+    e ambos são publicações diferentes no contexto do Boletim.
+    """
+
+    cleaned = []
+    seen = set()
+
+    for item in items:
+        title = normalize_title(item["title"])
+        url = normalize_url(item["url"])
+
+        year = item.get("year")
+        period = item.get("period")
+
+        if not title or not url or not year or not period:
+            continue
+
+        key = (
+            year,
+            period,
+            title.casefold(),
+            url,
+        )
+
+        if key in seen:
+            continue
+
+        seen.add(key)
+
+        cleaned.append(
+            {
+                "year": year,
+                "period": period,
+                "title": title,
+                "url": url,
+            }
+        )
+
+    return cleaned
 
 
 # ============================================================
-# IDENTIFICAÇÃO DA EDIÇÃO
+# ORDENAÇÃO CRONOLÓGICA
 # ============================================================
 
-def extract_issue_title(
-    candidate,
-):
-    """
-    Determina o título que será apresentado no RSS.
-    """
+def item_sort_key(item):
+    year = int(item["year"])
+    period_number = PERIOD_ORDER.get(item["period"], 0)
 
-    text = clean_text(
-        candidate.get(
-            "text",
-            "",
-        )
+    return (
+        year,
+        period_number,
     )
 
-    url = candidate[
-        "url"
-    ]
 
-    # Se o texto do link é suficientemente informativo,
-    # usamos o texto.
-    if text:
-        if len(text) >= 8:
-            return text
-
-    # Caso contrário usamos o nome do ficheiro.
-    path = urlparse(
-        url
-    ).path
-
-    filename = (
-        Path(path).name
+def sort_items(items):
+    # Mais recente primeiro.
+    return sorted(
+        items,
+        key=item_sort_key,
+        reverse=True,
     )
-
-    filename = (
-        filename
-        .replace(
-            "-",
-            " ",
-        )
-        .replace(
-            "_",
-            " ",
-        )
-        .replace(
-            ".pdf",
-            "",
-        )
-    )
-
-    filename = re.sub(
-        r"\s+",
-        " ",
-        filename,
-    ).strip()
-
-    if filename:
-
-        return (
-            "Boletim do CIM — "
-            + filename
-        )
-
-    return "Novo Boletim do CIM"
-
-
-def make_identifier(
-    candidate,
-):
-    """
-    Cria um identificador estável para a publicação.
-
-    Normalmente o próprio URL é suficiente.
-    O hash evita problemas com URLs muito grandes.
-    """
-
-    url = candidate[
-        "url"
-    ]
-
-    return hashlib.sha256(
-        url.encode(
-            "utf-8"
-        )
-    ).hexdigest()
 
 
 # ============================================================
-# HISTÓRICO
+# DATAS
 # ============================================================
 
-def load_seen():
+def make_pubdate(item):
+    """
+    Cria uma data RFC 822 representativa do período.
 
-    if not SEEN_FILE.exists():
-        return {}
+    Exemplo:
+        2026 + Abr-Jun -> 30 Jun 2026
 
-    try:
+    Isto serve para o RSS conseguir ordenar cronologicamente
+    os itens. A data não pretende ser a data oficial exata
+    de publicação.
+    """
 
-        with open(
-            SEEN_FILE,
-            "r",
-            encoding="utf-8",
-        ) as file:
+    year = int(item["year"])
+    period = item["period"]
 
-            return json.load(
-                file
-            )
+    month_day = PERIOD_END_MONTH.get(period)
 
-    except Exception as exc:
+    if month_day is None:
+        # Fallback seguro.
+        month, day = 12, 31
+    else:
+        month, day = month_day
 
-        print(
-            "Aviso: não foi possível ler "
-            f"{SEEN_FILE}: {exc}"
-        )
+    # Ajuste para Fevereiro em anos bissextos/não bissextos.
+    if month == 2:
+        if day > 29:
+            day = 29 if year % 4 == 0 else 28
 
-        return {}
-
-
-def save_seen(
-    seen,
-):
-
-    DATA_DIR.mkdir(
-        parents=True,
-        exist_ok=True,
+    dt = datetime(
+        year,
+        month,
+        day,
+        12,
+        0,
+        0,
+        tzinfo=timezone.utc,
     )
 
-    with open(
-        SEEN_FILE,
-        "w",
-        encoding="utf-8",
-    ) as file:
+    return dt.strftime("%a, %d %b %Y %H:%M:%S +0000")
 
-        json.dump(
-            seen,
-            file,
-            ensure_ascii=False,
-            indent=2,
-            sort_keys=True,
-        )
+
+# ============================================================
+# GUID
+# ============================================================
+
+def make_guid(item):
+    """
+    ID estável para cada publicação.
+
+    Incluímos ano, período, título e URL para garantir que
+    dois artigos que apontem para o mesmo PDF continuam a
+    ter GUIDs diferentes.
+    """
+
+    raw = "|".join(
+        [
+            str(item["year"]),
+            item["period"],
+            item["title"],
+            item["url"],
+        ]
+    )
+
+    digest = hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+    return f"cim-{digest}"
+
+
+# ============================================================
+# DESCRIÇÃO
+# ============================================================
+
+def make_description(item):
+    title = html.escape(item["title"])
+    period = html.escape(item["period"])
+    year = html.escape(str(item["year"]))
+    url = html.escape(item["url"], quote=True)
+
+    return (
+        f"<p><strong>{title}</strong></p>"
+        f"<p>Boletim do CIM — {period} {year}.</p>"
+        f'<p><a href="{url}">Abrir publicação</a></p>'
+    )
 
 
 # ============================================================
 # RSS
 # ============================================================
 
-def xml_escape(
-    value,
-):
-
-    if value is None:
-        return ""
-
-    return (
-        str(value)
-        .replace(
-            "&",
-            "&amp;",
-        )
-        .replace(
-            "<",
-            "&lt;",
-        )
-        .replace(
-            ">",
-            "&gt;",
-        )
-        .replace(
-            '"',
-            "&quot;",
-        )
-        .replace(
-            "'",
-            "&apos;",
-        )
+def build_rss(items):
+    rss = ET.Element(
+        "rss",
+        {
+            "version": "2.0",
+        },
     )
 
+    channel = ET.SubElement(rss, "channel")
 
-def create_description(
-    title,
-    url,
-    detected_at,
-):
+    title = ET.SubElement(channel, "title")
+    title.text = FEED_TITLE
 
-    return (
-        "<![CDATA["
-        "<p>"
-        "<strong>"
-        + html.escape(
-            title
-        )
-        + "</strong>"
-        "</p>"
-        "<p>"
-        "Nova publicação detetada na página "
-        "do Centro de Informação do Medicamento "
-        "(CIM) da Ordem dos Farmacêuticos."
-        "</p>"
-        "<p>"
-        "Detetada em: "
-        + html.escape(
-            detected_at
-        )
-        + "</p>"
-        "<p>"
-        '<a href="'
-        + html.escape(
-            url,
-            quote=True,
-        )
-        + '">'
-        "Abrir publicação"
-        "</a>"
-        "</p>"
-        "]]>"
+    link = ET.SubElement(channel, "link")
+    link.text = FEED_LINK
+
+    description = ET.SubElement(channel, "description")
+    description.text = FEED_DESCRIPTION
+
+    language = ET.SubElement(channel, "language")
+    language.text = FEED_LANGUAGE
+
+    last_build = ET.SubElement(channel, "lastBuildDate")
+    last_build.text = datetime.now(timezone.utc).strftime(
+        "%a, %d %b %Y %H:%M:%S +0000"
     )
 
-
-def build_feed(
-    items,
-):
-
-    now = datetime.now(
-        timezone.utc
-    )
-
-    # --------------------------------------------------------
-    # Ordenação
-    # --------------------------------------------------------
-
-    items = sorted(
-        items,
-        key=lambda item: item.get(
-            "detected_at",
-            "",
-        ),
-        reverse=True,
-    )
-
-    items = items[
-        :MAX_FEED_ITEMS
-    ]
-
-    rss_items = []
+    ttl = ET.SubElement(channel, "ttl")
+    ttl.text = FEED_TTL
 
     for item in items:
+        rss_item = ET.SubElement(channel, "item")
 
-        try:
+        item_title = ET.SubElement(rss_item, "title")
+        item_title.text = item["title"]
 
-            detected_at = (
-                datetime.fromisoformat(
-                    item[
-                        "detected_at"
-                    ].replace(
-                        "Z",
-                        "+00:00",
-                    )
-                )
-            )
+        item_link = ET.SubElement(rss_item, "link")
+        item_link.text = item["url"]
 
-        except Exception:
+        guid = ET.SubElement(
+            rss_item,
+            "guid",
+            {"isPermaLink": "false"},
+        )
+        guid.text = make_guid(item)
 
-            detected_at = now
+        pub_date = ET.SubElement(rss_item, "pubDate")
+        pub_date.text = make_pubdate(item)
 
-        description = (
-            create_description(
-                item["title"],
-                item["url"],
-                item["detected_at"],
-            )
+        item_description = ET.SubElement(
+            rss_item,
+            "description",
         )
 
-        rss_items.append(
-            """
-    <item>
-      <title>{title}</title>
-      <link>{url}</link>
-      <guid isPermaLink="false">
-        cim-{identifier}
-      </guid>
-      <pubDate>{pubdate}</pubDate>
-      <description>{description}</description>
-      <category>Boletim do CIM</category>
-    </item>
-            """.format(
-                title=xml_escape(
-                    item["title"]
-                ),
-                url=xml_escape(
-                    item["url"]
-                ),
-                identifier=xml_escape(
-                    item["id"]
-                ),
-                pubdate=format_datetime(
-                    detected_at
-                ),
-                description=description,
-            )
-        )
+        item_description.text = make_description(item)
 
-    rss = """<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0">
-  <channel>
+        category = ET.SubElement(rss_item, "category")
+        category.text = "Boletim do CIM"
 
-    <title>{title}</title>
+    return rss
 
-    <link>{source}</link>
 
-    <description>
-      Novas edições do Boletim do CIM da
-      Ordem dos Farmacêuticos.
-    </description>
+# ============================================================
+# ESCRITA DO XML
+# ============================================================
 
-    <language>pt-PT</language>
+def write_xml(root, filename):
+    tree = ET.ElementTree(root)
 
-    <lastBuildDate>{last_build}</lastBuildDate>
+    # Python 3.9+
+    ET.indent(tree, space="  ")
 
-    <ttl>1440</ttl>
-
-{items}
-  </channel>
-</rss>
-""".format(
-        title=xml_escape(
-            FEED_TITLE
-        ),
-        source=xml_escape(
-            SOURCE_URL
-        ),
-        last_build=format_datetime(
-            now
-        ),
-        items="".join(
-            rss_items
-        ),
-    )
-
-    # Verificação básica de XML antes de escrever.
-    ET.fromstring(
-        rss
-    )
-
-    PUBLIC_DIR.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
-
-    FEED_FILE.write_text(
-        rss,
+    tree.write(
+        filename,
         encoding="utf-8",
+        xml_declaration=True,
     )
 
 
@@ -755,225 +625,81 @@ def build_feed(
 # ============================================================
 
 def main():
+    print(f"A obter página: {SOURCE_URL}")
 
-    print(
-        "======================================"
+    response = requests.get(
+        SOURCE_URL,
+        headers=HEADERS,
+        timeout=REQUEST_TIMEOUT,
     )
 
-    print(
-        "Boletim do CIM — RSS"
-    )
+    response.raise_for_status()
 
-    print(
-        "======================================"
-    )
+    # A Ordem usa UTF-8. O requests normalmente deteta corretamente,
+    # mas forçamos UTF-8 para evitar problemas com acentos.
+    response.encoding = "utf-8"
 
-    print(
-        "\n1. A obter página do CIM..."
-    )
+    content = response.text
 
-    print(
-        SOURCE_URL
-    )
+    print(f"Página obtida: {len(content):,} caracteres")
 
-    html_content = fetch_page(
-        SOURCE_URL
-    )
+    items = parse_cim_page(content)
 
-    print(
-        f"   HTML recebido: "
-        f"{len(html_content):,} caracteres."
-    )
+    print(f"Itens encontrados inicialmente: {len(items)}")
 
-    # --------------------------------------------------------
-    # Encontrar candidatos
-    # --------------------------------------------------------
+    items = clean_items(items)
 
-    print(
-        "\n2. A procurar links do Boletim do CIM..."
-    )
+    print(f"Itens após limpeza: {len(items)}")
 
-    candidates = find_bulletins(
-        html_content
-    )
+    items = sort_items(items)
 
-    print(
-        f"   {len(candidates)} candidatos encontrados."
-    )
-
-    if not candidates:
-
+    if not items:
         raise RuntimeError(
-            "Não foi encontrado nenhum PDF "
-            "na página do Boletim do CIM. "
-            "O site pode ter alterado "
-            "a sua estrutura."
+            "Não foram encontradas publicações do Boletim do CIM. "
+            "O feed NÃO será substituído."
         )
 
-    # --------------------------------------------------------
-    # Mostrar candidato no log
-    # --------------------------------------------------------
+    # Verificação de segurança.
+    #
+    # Se a página mudar radicalmente e o parser passar a encontrar
+    # muito poucos itens, não queremos destruir o histórico.
+    #
+    # A página fornecida atualmente contém dezenas de publicações.
+    if len(items) < 20:
+        raise RuntimeError(
+            f"Foram encontrados apenas {len(items)} itens. "
+            "Por segurança, o feed NÃO será substituído. "
+            "Verifica se a estrutura da página da Ordem mudou."
+        )
 
-    print(
-        "\nCandidato selecionado:"
-    )
+    rss = build_rss(items)
 
-    for candidate in candidates[:1]:
+    write_xml(rss, OUTPUT_FILE)
 
+    print()
+    print("=" * 60)
+    print("FEED CIM ATUALIZADO COM SUCESSO")
+    print("=" * 60)
+    print(f"Publicações: {len(items)}")
+    print(f"Ficheiro:    {OUTPUT_FILE}")
+    print()
+
+    print("Primeiras publicações:")
+    for item in items[:10]:
         print(
-            f"   posição={candidate['position']} "
-            f"| {candidate['text'][:120]} "
-            f"| {candidate['url']}"
+            f"  {item['year']} {item['period']} | "
+            f"{item['title']}"
         )
 
-    # --------------------------------------------------------
-    # Escolher o candidato
-    # --------------------------------------------------------
-
-    # find_bulletins() devolve deliberadamente apenas
-    # o primeiro PDF da página.
-    latest = candidates[0]
-
-    title = extract_issue_title(
-        latest
-    )
-
-    identifier = make_identifier(
-        latest
-    )
-
-    print(
-        "\n3. Publicação mais recente detetada:"
-    )
-
-    print(
-        f"   Título: {title}"
-    )
-
-    print(
-        f"   URL: {latest['url']}"
-    )
-
-    print(
-        f"   Score: {latest['score']}"
-    )
-
-    # --------------------------------------------------------
-    # Histórico
-    # --------------------------------------------------------
-
-    seen = load_seen()
-
-    feed_items = []
-
-    # Recuperar itens anteriores.
-    for identifier_key, item in seen.items():
-
-        if "url" not in item:
-            continue
-
-        feed_items.append(
-            item
-        )
-
-    # --------------------------------------------------------
-    # Verificar se é uma nova publicação
-    # --------------------------------------------------------
-
-    if identifier in seen:
-
+    print()
+    print("Últimas publicações:")
+    for item in items[-5:]:
         print(
-            "\n4. A publicação já é conhecida."
+            f"  {item['year']} {item['period']} | "
+            f"{item['title']}"
         )
-
-        print(
-            "   Nenhuma nova publicação."
-        )
-
-    else:
-
-        detected_at = (
-            datetime.now(
-                timezone.utc
-            ).isoformat()
-        )
-
-        new_item = {
-            "id": identifier,
-            "title": title,
-            "url": latest["url"],
-            "detected_at": detected_at,
-        }
-
-        seen[
-            identifier
-        ] = new_item
-
-        feed_items.append(
-            new_item
-        )
-
-        print(
-            "\n4. NOVA PUBLICAÇÃO!"
-        )
-
-        print(
-            f"   {title}"
-        )
-
-    # --------------------------------------------------------
-    # Remover duplicados
-    # --------------------------------------------------------
-
-    unique = {}
-
-    for item in feed_items:
-
-        unique[
-            item["id"]
-        ] = item
-
-    feed_items = list(
-        unique.values()
-    )
-
-    # --------------------------------------------------------
-    # RSS
-    # --------------------------------------------------------
-
-    print(
-        "\n5. A gerar RSS..."
-    )
-
-    build_feed(
-        feed_items
-    )
-
-    save_seen(
-        seen
-    )
-
-    print(
-        f"   Feed: {FEED_FILE}"
-    )
-
-    print(
-        f"   Itens no feed: "
-        f"{min(len(feed_items), MAX_FEED_ITEMS)}"
-    )
-
-    print(
-        "\n======================================"
-    )
-
-    print(
-        "Concluído."
-    )
-
-    print(
-        "======================================"
-    )
 
 
 if __name__ == "__main__":
     main()
+```
