@@ -1,1 +1,34 @@
-[]
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+
+    <title>Boletim do CIM — Ordem dos Farmacêuticos</title>
+
+    <link>https://ordemfarmaceuticos.pt/pt/CIM/INDICE-DE-PUBLICACOES/</link>
+
+    <description>
+      Novas edições do Boletim do CIM da
+      Ordem dos Farmacêuticos.
+    </description>
+
+    <language>pt-PT</language>
+
+    <lastBuildDate>Fri, 28 Aug 2026 07:10:42 +0000</lastBuildDate>
+
+    <ttl>1440</ttl>
+
+
+    <item>
+      <title>Entre a informação e a relação: Evolução da comunicação com o doente na prática farmacêutica em comunidade</title>
+      <link>http://ordemfarmaceuticos.pt/fotos/editor2/CIM/Publicacoes/boletim_cim/boletim_julho_setembro_2025_final.pdf</link>
+      <guid isPermaLink="false">
+        cim-c45e3e524dac44686c5e1f518f3db069b0606ebcb1f8cad98e079c836a12d9a8
+      </guid>
+      <pubDate>Fri, 28 Aug 2026 07:10:42 +0000</pubDate>
+      <description><![CDATA[<p><strong>Entre a informação e a relação: Evolução da comunicação com o doente na prática farmacêutica em comunidade</strong></p><p>Nova publicação detetada na página do Centro de Informação do Medicamento (CIM) da Ordem dos Farmacêuticos.</p><p>Detetada em: 2026-08-28T07:10:42.462502+00:00</p><p><a href="http://ordemfarmaceuticos.pt/fotos/editor2/CIM/Publicacoes/boletim_cim/boletim_julho_setembro_2025_final.pdf">Abrir publicação</a></p>]]></description>
+      <category>Boletim do CIM</category>
+    </item>
+            
+
+  </channel>
+</rss>
