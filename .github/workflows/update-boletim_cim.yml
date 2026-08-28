@@ -1,72 +1,83 @@
 name: Update Boletim CIM RSS
 
 on:
-  schedule:
-    # Todos os dias às 08:00 UTC
-    - cron: "0 8 * * *"
+schedule:
+# Todos os dias às 08:00 UTC
+- cron: "0 8 * * *"
 
-  workflow_dispatch:
+workflow_dispatch:
 
 permissions:
-  contents: write
+contents: write
 
 jobs:
-  update-cim-feed:
+update-cim-feed:
 
-    runs-on: ubuntu-latest
+```
+runs-on: ubuntu-latest
 
-    steps:
+steps:
 
-      # ------------------------------------------------------
-      # Checkout
-      # ------------------------------------------------------
+  # ------------------------------------------------------
+  # Checkout
+  # ------------------------------------------------------
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
+  - name: Checkout repository
+    uses: actions/checkout@v4
 
-      # ------------------------------------------------------
-      # Python
-      # ------------------------------------------------------
+  # ------------------------------------------------------
+  # Python
+  # ------------------------------------------------------
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
+  - name: Set up Python
+    uses: actions/setup-python@v5
+    with:
+      python-version: "3.12"
 
-      # ------------------------------------------------------
-      # Executar scraper
-      # ------------------------------------------------------
+  # ------------------------------------------------------
+  # Dependências
+  # ------------------------------------------------------
 
-      - name: Update Boletim CIM RSS
-        run: |
-          python src/update_boletim_cim_feed.py
+  - name: Install dependencies
+    run: |
+      python -m pip install --upgrade pip
+      python -m pip install requests
 
-      # ------------------------------------------------------
-      # Verificar alterações
-      # ------------------------------------------------------
+  # ------------------------------------------------------
+  # Executar scraper
+  # ------------------------------------------------------
 
-      - name: Check for changes
-        id: changes
-        run: |
-          if git diff --quiet; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          fi
+  - name: Update Boletim CIM RSS
+    run: |
+      python src/update_boletim_cim_feed.py
 
-      # ------------------------------------------------------
-      # Commit
-      # ------------------------------------------------------
+  # ------------------------------------------------------
+  # Verificar alterações
+  # ------------------------------------------------------
 
-      - name: Commit and push changes
-        if: steps.changes.outputs.changed == 'true'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+  - name: Check for changes
+    id: changes
+    run: |
+      if git diff --quiet; then
+        echo "changed=false" >> "$GITHUB_OUTPUT"
+      else
+        echo "changed=true" >> "$GITHUB_OUTPUT"
+      fi
 
-          git add public/boletim_cim.xml
-          git add data/boletim_cim_seen.json
+  # ------------------------------------------------------
+  # Commit
+  # ------------------------------------------------------
 
-          git commit -m "Update Boletim CIM RSS"
+  - name: Commit and push changes
+    if: steps.changes.outputs.changed == 'true'
+    run: |
+      git config user.name "github-actions[bot]"
+      git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git push
+      git add public/boletim_cim.xml
+      git add data/boletim_cim_seen.json
+
+      git commit -m "Update Boletim CIM RSS"
+
+      git push
+```
