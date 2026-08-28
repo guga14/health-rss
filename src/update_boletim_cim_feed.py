@@ -28,7 +28,7 @@ SITE_ROOT = "https://ordemfarmaceuticos.pt/"
 PUBLIC_DIR = Path("public")
 DATA_DIR = Path("data")
 
-FEED_FILE = PUBLIC_DIR / "boletim-cim.xml"
+FEED_FILE = PUBLIC_DIR / "boletim_cim.xml"
 SEEN_FILE = DATA_DIR / "boletim_cim_seen.json"
 
 FEED_TITLE = "Boletim do CIM — Ordem dos Farmacêuticos"
