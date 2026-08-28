@@ -16,6 +16,7 @@ permissions:
 
 
 jobs:
+
   update:
 
     runs-on: ubuntu-latest
@@ -37,6 +38,81 @@ jobs:
           NCBI_EMAIL: ${{ secrets.NCBI_EMAIL }}
         run: |
           python src/update_feed.py
+
+
+      - name: Validate RSS file
+        run: |
+          python - <<'PY'
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          feed = Path("public/jama-free.xml")
+
+          if not feed.exists():
+              raise SystemExit("ERRO: public/jama-free.xml não existe.")
+
+          if feed.stat().st_size == 0:
+              raise SystemExit("ERRO: public/jama-free.xml está vazio.")
+
+          root = ET.parse(feed).getroot()
+
+          if root.tag != "rss":
+              raise SystemExit(
+                  f"ERRO: elemento raiz inesperado: {root.tag}"
+              )
+
+          if root.get("version") != "2.0":
+              raise SystemExit(
+                  "ERRO: RSS não declara version=\"2.0\"."
+              )
+
+          channels = root.findall("channel")
+
+          if len(channels) != 1:
+              raise SystemExit(
+                  "ERRO: RSS deve conter exatamente um channel."
+              )
+
+          channel = channels[0]
+
+          for required in ("title", "link", "description"):
+              element = channel.find(required)
+
+              if element is None:
+                  raise SystemExit(
+                      f"ERRO: channel não contém <{required}>."
+                  )
+
+              if not (element.text or "").strip():
+                  raise SystemExit(
+                      f"ERRO: channel/<{required}> está vazio."
+                  )
+
+          items = channel.findall("item")
+
+          if len(items) > 200:
+              raise SystemExit(
+                  f"ERRO: RSS contém {len(items)} itens; máximo permitido: 200."
+              )
+
+          for number, item in enumerate(items, start=1):
+
+              title = item.findtext("title", "").strip()
+              description = item.find("description")
+
+              if not title and (
+                  description is None
+                  or not (description.text or "").strip()
+              ):
+                  raise SystemExit(
+                      f"ERRO: item #{number} não tem title nem description."
+                  )
+
+          print(
+              f"RSS OK: {len(items)} itens, "
+              f"{feed.stat().st_size} bytes."
+          )
+          PY
 
 
       - name: Commit updated feed
