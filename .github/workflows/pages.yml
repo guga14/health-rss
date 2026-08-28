@@ -56,10 +56,10 @@ jobs:
             echo "⚠ jama-free.xml não encontrado"
           fi
 
-          if [ -f public/boletim-cim.xml ]; then
-            echo "✓ boletim-cim.xml"
+          if [ -f public/boletim_cim.xml ]; then
+            echo "✓ boletim_cim.xml"
           else
-            echo "⚠ boletim-cim.xml não encontrado"
+            echo "⚠ boletim_cim.xml não encontrado"
           fi
 
       # ------------------------------------------------------
