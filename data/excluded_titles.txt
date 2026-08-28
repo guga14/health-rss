@@ -7,6 +7,7 @@ united states
 emergency
 veterans
 aboriginal
+error
 
 # Case-sensitive
 CASE:US
