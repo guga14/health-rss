@@ -4,6 +4,9 @@
 medicare
 medicaid
 united states
+emergency
+veterans
+aboriginal
 
 # Case-sensitive
 CASE:US
