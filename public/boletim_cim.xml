@@ -13,11 +13,22 @@
 
     <language>pt-PT</language>
 
-    <lastBuildDate>Fri, 28 Aug 2026 07:10:42 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 28 Aug 2026 07:36:19 +0000</lastBuildDate>
 
     <ttl>1440</ttl>
 
 
+    <item>
+      <title>Intervenção farmacêutica no suporte nutricional artifical</title>
+      <link>http://ordemfarmaceuticos.pt/fotos/editor2/2026/cim/boletim_abr_jun_2026_final.pdf</link>
+      <guid isPermaLink="false">
+        cim-cc067b6af6500cc1da4878ccd513393281007221c62bfb7128f05fcabe672979
+      </guid>
+      <pubDate>Fri, 28 Aug 2026 07:36:19 +0000</pubDate>
+      <description><![CDATA[<p><strong>Intervenção farmacêutica no suporte nutricional artifical</strong></p><p>Nova publicação detetada na página do Centro de Informação do Medicamento (CIM) da Ordem dos Farmacêuticos.</p><p>Detetada em: 2026-08-28T07:36:19.208313+00:00</p><p><a href="http://ordemfarmaceuticos.pt/fotos/editor2/2026/cim/boletim_abr_jun_2026_final.pdf">Abrir publicação</a></p>]]></description>
+      <category>Boletim do CIM</category>
+    </item>
+            
     <item>
       <title>Entre a informação e a relação: Evolução da comunicação com o doente na prática farmacêutica em comunidade</title>
       <link>http://ordemfarmaceuticos.pt/fotos/editor2/CIM/Publicacoes/boletim_cim/boletim_julho_setembro_2025_final.pdf</link>
@@ -29,6 +40,5 @@
       <category>Boletim do CIM</category>
     </item>
             
-
   </channel>
 </rss>
