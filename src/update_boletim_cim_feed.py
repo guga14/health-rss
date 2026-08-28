@@ -24,7 +24,7 @@ FEED_DESCRIPTION = (
 FEED_LANGUAGE = "pt-PT"
 FEED_TTL = "1440"
 
-OUTPUT_FILE = "boletim_cim.xml"
+OUTPUT_FILE = "public/boletim_cim.xml"
 
 HEADERS = {
     "User-Agent": (
