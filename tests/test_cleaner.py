@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from src.cleaner import ArticleCleaner
+from src.processing.cleaner import ArticleCleaner
 from src.models.article import Article
 from src.models.source import Source
 
