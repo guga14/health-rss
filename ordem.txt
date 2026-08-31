@@ -1,15 +1,3 @@
-Faz sentido começar pelo **modelo de dados**, antes da lógica de recolha, processamento ou geração dos RSS.
-
-Na estrutura que definimos, eu começaria por:
-
-```text
-src/
-└── models/
-    ├── __init__.py
-    ├── article.py
-    └── source.py
-```
-
 ### Ordem que recomendo
 
 1. **`src/models/article.py`**
@@ -26,56 +14,3 @@ src/
 12. **`.github/workflows/generate_feeds.yml`**
 13. **`public/index.html`**
 14. **testes**
-
-### Porquê começar por `article.py`?
-
-Porque o **artigo é a unidade central do sistema**.
-
-Independentemente de a informação vir de:
-
-* uma API;
-* HTML scraping;
-* RSS/Atom;
-* outra fonte que adicionemos posteriormente,
-
-o resto do sistema deve trabalhar com uma representação comum.
-
-O fluxo poderá ser:
-
-```text
-Source
-   ↓
-Fetcher
-   ↓
-Article
-   ↓
-Cleaner
-   ↓
-Deduplicator
-   ↓
-Feed
-   ↓
-RSS
-```
-
-Se definirmos bem `Article` primeiro, conseguimos depois construir o resto sem estar constantemente a alterar as interfaces.
-
-### E `source.py`?
-
-Logo a seguir, porque precisamos de definir o que o sistema entende por **fonte**:
-
-```text
-Source
- ├── identificação
- ├── configuração
- ├── tipo
- └── parâmetros de recolha
-```
-
-Depois `base.py` poderá definir como uma `Source` é efetivamente consultada.
-
----
-
-**Portanto, começaria por `src/models/article.py`.**
-
-Antes de o escrever, há uma decisão importante que vale a pena fazer: **quais são exatamente os campos que um `Article` deve ter e quais são obrigatórios/opcionais**. Isso vai determinar grande parte da arquitetura seguinte.

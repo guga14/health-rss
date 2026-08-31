@@ -6,13 +6,14 @@ from hashlib import sha256
 
 @dataclass
 class Article:
+    """Normalized article representation."""
+
     title: str
     link: str
-    published: datetime
     source: str
 
+    published: datetime | None = None
     description: str | None = None
-    updated: datetime | None = None
     author: str | None = None
     category: list[str] = field(default_factory=list)
 
@@ -20,4 +21,6 @@ class Article:
 
     def __post_init__(self) -> None:
         identity = f"{self.source}|{self.link}|{self.title}"
-        self.id = sha256(identity.encode("utf-8")).hexdigest()
+        self.id = sha256(
+            identity.encode("utf-8")
+        ).hexdigest()

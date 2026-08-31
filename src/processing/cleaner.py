@@ -38,12 +38,24 @@ class ArticleCleaner:
     def _clean_article(self, raw: dict[str, Any]) -> Article:
         title = self._clean_required_text(raw, "title")
         link = self._clean_link(raw)
-        published = self._clean_date(raw, "published", required=True)
 
-        description = self._clean_optional_text(raw.get("description"))
-        updated = self._clean_date(raw, "updated", required=False)
-        author = self._clean_optional_text(raw.get("author"))
-        category = self._clean_categories(raw.get("category"))
+        description = self._clean_optional_text(
+            raw.get("description")
+        )
+
+        published = self._clean_date(
+            raw,
+            "published",
+            required=False,
+        )
+
+        author = self._clean_optional_text(
+            raw.get("author")
+        )
+
+        category = self._clean_categories(
+            raw.get("category")
+        )
 
         return Article(
             title=title,
@@ -51,7 +63,6 @@ class ArticleCleaner:
             published=published,
             source=self.source.name,
             description=description,
-            updated=updated,
             author=author,
             category=category,
         )
@@ -64,12 +75,16 @@ class ArticleCleaner:
         value = raw.get(field)
 
         if not isinstance(value, str):
-            raise ValueError(f"Field '{field}' is missing or is not text.")
+            raise ValueError(
+                f"Field '{field}' is missing or is not text."
+            )
 
         value = value.strip()
 
         if not value:
-            raise ValueError(f"Field '{field}' is empty.")
+            raise ValueError(
+                f"Field '{field}' is empty."
+            )
 
         return value
 
@@ -79,7 +94,9 @@ class ArticleCleaner:
             return None
 
         if not isinstance(value, str):
-            value = str(value)
+            raise ValueError(
+                "Optional text field is not text."
+            )
 
         value = value.strip()
 
@@ -88,10 +105,15 @@ class ArticleCleaner:
     def _clean_link(self, raw: dict[str, Any]) -> str:
         link = self._clean_required_text(raw, "link")
 
-        absolute_link = urljoin(self.source.url, link)
+        absolute_link = urljoin(
+            self.source.url,
+            link,
+        )
 
         if not absolute_link:
-            raise ValueError("Field 'link' could not be normalized.")
+            raise ValueError(
+                "Field 'link' could not be normalized."
+            )
 
         return absolute_link
 
@@ -106,7 +128,10 @@ class ArticleCleaner:
 
         if value is None or value == "":
             if required:
-                raise ValueError(f"Field '{field}' is missing.")
+                raise ValueError(
+                    f"Field '{field}' is missing."
+                )
+
             return None
 
         if isinstance(value, datetime):
@@ -121,7 +146,10 @@ class ArticleCleaner:
 
         if not value:
             if required:
-                raise ValueError(f"Field '{field}' is empty.")
+                raise ValueError(
+                    f"Field '{field}' is empty."
+                )
+
             return None
 
         field_config = self._get_field_config(field)
@@ -129,21 +157,35 @@ class ArticleCleaner:
 
         if date_format:
             try:
-                return datetime.strptime(value, date_format)
+                return datetime.strptime(
+                    value,
+                    date_format,
+                )
             except ValueError as exc:
                 raise ValueError(
                     f"Field '{field}' does not match date format "
                     f"'{date_format}'."
                 ) from exc
 
-        return self._parse_common_date(value, field)
+        return self._parse_common_date(
+            value,
+            field,
+        )
 
     @staticmethod
-    def _parse_common_date(value: str, field: str) -> datetime:
-        normalized = value.replace("Z", "+00:00")
+    def _parse_common_date(
+        value: str,
+        field: str,
+    ) -> datetime:
+        normalized = value.replace(
+            "Z",
+            "+00:00",
+        )
 
         try:
-            return datetime.fromisoformat(normalized)
+            return datetime.fromisoformat(
+                normalized,
+            )
         except ValueError:
             pass
 
@@ -160,7 +202,10 @@ class ArticleCleaner:
 
         for date_format in common_formats:
             try:
-                return datetime.strptime(value, date_format)
+                return datetime.strptime(
+                    value,
+                    date_format,
+                )
             except ValueError:
                 continue
 
@@ -168,7 +213,10 @@ class ArticleCleaner:
             f"Could not parse date in field '{field}': {value!r}"
         )
 
-    def _clean_categories(self, value: Any) -> list[str]:
+    @staticmethod
+    def _clean_categories(
+        value: Any,
+    ) -> list[str]:
         if value is None:
             return []
 
@@ -177,14 +225,18 @@ class ArticleCleaner:
         elif isinstance(value, list):
             values = value
         else:
-            raise ValueError("Field 'category' must be text or a list.")
+            raise ValueError(
+                "Field 'category' must be text or a list."
+            )
 
         categories: list[str] = []
         seen: set[str] = set()
 
         for category in values:
             if not isinstance(category, str):
-                continue
+                raise ValueError(
+                    "Category values must be text."
+                )
 
             category = category.strip()
 
@@ -196,9 +248,19 @@ class ArticleCleaner:
 
         return categories
 
-    def _get_field_config(self, field: str) -> dict[str, Any]:
-        fields = self.source.parser.get("fields", {})
-        config = fields.get(field, {})
+    def _get_field_config(
+        self,
+        field: str,
+    ) -> dict[str, Any]:
+        fields = self.source.parser.get(
+            "fields",
+            {}
+        )
+
+        config = fields.get(
+            field,
+            {}
+        )
 
         if not isinstance(config, dict):
             return {}

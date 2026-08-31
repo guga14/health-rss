@@ -43,3 +43,44 @@ public/
              ↓         ↓
          não altera   mark
           state     published
+
+Fetcher
+    → dados normalizados
+
+Cleaner
+    → Article[]
+
+Deduplicator
+    → Article[] sem duplicados
+
+PublishedState
+    → filtra artigos já publicados
+
+FeedGenerator
+    → RSS XML em memória
+
+Source
+  ↓
+Fetcher
+  ↓
+raw dict[]
+  ↓
+Cleaner
+  ↓
+Article[]
+  ↓
+Deduplicator
+  ↓
+PublishedState.unpublished()
+  ↓
+Article[] novos
+  ↓
+FeedGenerator.generate()
+  ↓
+RSS XML
+  ↓
+FileOutput.write()
+  ↓
+PublishedState.mark_published()
+
+A ordem dos feeds na configuração define a prioridade quando um mesmo artigo pertence a vários feeds.
