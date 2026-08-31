@@ -1,16 +1,3 @@
-config/
-    O que o sistema deve fazer.
-
-src/
-    Como o sistema faz.
-
-state/
-    O que o sistema precisa de lembrar (contém exclusivamente informação que o sistema precisa de recordar entre execuções.)
-
-public/
-    O que o sistema publica.
-
-
 - Fluxo:
 
                  FETCH
@@ -44,20 +31,7 @@ public/
          não altera   mark
           state     published
 
-Fetcher
-    → dados normalizados
 
-Cleaner
-    → Article[]
-
-Deduplicator
-    → Article[] sem duplicados
-
-PublishedState
-    → filtra artigos já publicados
-
-FeedGenerator
-    → RSS XML em memória
 
 Source
   ↓
@@ -84,3 +58,29 @@ FileOutput.write()
 PublishedState.mark_published()
 
 A ordem dos feeds na configuração define a prioridade quando um mesmo artigo pertence a vários feeds.
+
+sources
+   ↓
+articles novos
+   ↓
+deduplicate
+   ↓
+PublishedState
+   ↓
+new_articles
+   ↓
+ler RSS existente
+   ↓
+existing + new
+   ↓
+deduplicate por guid/id
+   ↓
+ordenar por published desc
+   ↓
+[:max_items]
+   ↓
+gerar RSS
+   ↓
+escrever
+   ↓
+mark_published(new_articles)

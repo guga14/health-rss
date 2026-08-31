@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
-from ..models.source import Source
+from models.source import Source
 
 
 class SourceFetcher(ABC):

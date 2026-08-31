@@ -1,14 +1,11 @@
 from datetime import datetime, timezone
 
-from src.processing.cleaner import ArticleCleaner
-from src.models.article import Article
 from src.models.source import Source
+from src.processing.cleaner import ArticleCleaner
 
 
 def make_cleaner(
-    *,
     fields: dict | None = None,
-    source_url: str = "https://example.com/news",
 ) -> ArticleCleaner:
     if fields is None:
         fields = {
@@ -18,11 +15,11 @@ def make_cleaner(
             "link": {
                 "path": "link",
             },
-            "description": {
-                "path": "description",
-            },
             "published": {
                 "path": "published",
+            },
+            "description": {
+                "path": "description",
             },
             "author": {
                 "path": "author",
@@ -33,9 +30,9 @@ def make_cleaner(
         }
 
     source = Source(
-        id="example",
+        id="source-1",
         name="Example Source",
-        url=source_url,
+        url="https://example.com",
         type="api",
         parser={
             "items_path": "articles",
@@ -53,10 +50,10 @@ def test_clean_creates_article() -> None:
         {
             "title": "Example article",
             "link": "https://example.com/article",
+            "published": "2026-08-31T10:00:00+00:00",
             "description": "Example description",
-            "published": "2026-08-31T12:30:00+00:00",
-            "author": "Jane Doe",
-            "category": ["Technology"],
+            "author": "John Doe",
+            "category": "Health",
         }
     ]
 
@@ -66,20 +63,20 @@ def test_clean_creates_article() -> None:
 
     article = articles[0]
 
-    assert isinstance(article, Article)
     assert article.title == "Example article"
     assert article.link == "https://example.com/article"
-    assert article.description == "Example description"
     assert article.published == datetime(
         2026,
         8,
         31,
-        12,
-        30,
+        10,
+        0,
         tzinfo=timezone.utc,
     )
-    assert article.author == "Jane Doe"
-    assert article.category == ["Technology"]
+    assert article.source == "Example Source"
+    assert article.description == "Example description"
+    assert article.author == "John Doe"
+    assert article.category == ["Health"]
 
 
 def test_clean_normalizes_text_fields() -> None:
@@ -89,10 +86,9 @@ def test_clean_normalizes_text_fields() -> None:
         {
             "title": "  Example article  ",
             "link": "  https://example.com/article  ",
-            "description": "  Description  ",
-            "published": None,
-            "author": "  Jane Doe  ",
-            "category": ["  Technology  "],
+            "description": "  Example description  ",
+            "author": "  John Doe  ",
+            "category": "  Health  ",
         }
     ]
 
@@ -104,21 +100,18 @@ def test_clean_normalizes_text_fields() -> None:
 
     assert article.title == "Example article"
     assert article.link == "https://example.com/article"
-    assert article.description == "Description"
-    assert article.author == "Jane Doe"
-    assert article.category == ["Technology"]
+    assert article.description == "Example description"
+    assert article.author == "John Doe"
+    assert article.category == ["Health"]
 
 
 def test_clean_normalizes_relative_link() -> None:
-    cleaner = make_cleaner(
-        source_url="https://example.com/news/",
-    )
+    cleaner = make_cleaner()
 
     raw_articles = [
         {
             "title": "Example article",
-            "link": "../article",
-            "published": None,
+            "link": "/article",
         }
     ]
 
@@ -151,7 +144,7 @@ def test_clean_parses_iso_datetime() -> None:
         {
             "title": "Example article",
             "link": "https://example.com/article",
-            "published": "2026-08-31T12:30:00+00:00",
+            "published": "2026-08-31T10:30:00+01:00",
         }
     ]
 
@@ -162,7 +155,7 @@ def test_clean_parses_iso_datetime() -> None:
         2026,
         8,
         31,
-        12,
+        9,
         30,
         tzinfo=timezone.utc,
     )
@@ -175,7 +168,7 @@ def test_clean_parses_utc_z_datetime() -> None:
         {
             "title": "Example article",
             "link": "https://example.com/article",
-            "published": "2026-08-31T12:30:00Z",
+            "published": "2026-08-31T10:30:00Z",
         }
     ]
 
@@ -186,7 +179,7 @@ def test_clean_parses_utc_z_datetime() -> None:
         2026,
         8,
         31,
-        12,
+        10,
         30,
         tzinfo=timezone.utc,
     )
@@ -223,6 +216,7 @@ def test_clean_uses_configured_date_format() -> None:
         2026,
         8,
         31,
+        tzinfo=timezone.utc,
     )
 
 
@@ -244,6 +238,7 @@ def test_clean_parses_common_date_formats() -> None:
         2026,
         8,
         31,
+        tzinfo=timezone.utc,
     )
 
 
@@ -254,14 +249,14 @@ def test_clean_normalizes_string_category() -> None:
         {
             "title": "Example article",
             "link": "https://example.com/article",
-            "category": "Technology",
+            "category": "Health",
         }
     ]
 
     articles = cleaner.clean(raw_articles)
 
     assert len(articles) == 1
-    assert articles[0].category == ["Technology"]
+    assert articles[0].category == ["Health"]
 
 
 def test_clean_normalizes_category_list() -> None:
@@ -272,11 +267,10 @@ def test_clean_normalizes_category_list() -> None:
             "title": "Example article",
             "link": "https://example.com/article",
             "category": [
-                "Technology",
+                "Health",
                 "Science",
-                "Technology",
-                " ",
-                "Science",
+                "Health",
+                "  Medicine  ",
             ],
         }
     ]
@@ -285,8 +279,9 @@ def test_clean_normalizes_category_list() -> None:
 
     assert len(articles) == 1
     assert articles[0].category == [
-        "Technology",
+        "Health",
         "Science",
+        "Medicine",
     ]
 
 
@@ -307,9 +302,9 @@ def test_clean_missing_optional_fields_uses_defaults() -> None:
     article = articles[0]
 
     assert article.description is None
-    assert article.published is None
     assert article.author is None
     assert article.category == []
+    assert article.published is None
 
 
 def test_clean_skips_article_without_title() -> None:
@@ -318,7 +313,6 @@ def test_clean_skips_article_without_title() -> None:
     raw_articles = [
         {
             "link": "https://example.com/article",
-            "published": None,
         }
     ]
 
@@ -334,7 +328,6 @@ def test_clean_skips_article_with_empty_title() -> None:
         {
             "title": "   ",
             "link": "https://example.com/article",
-            "published": None,
         }
     ]
 
@@ -349,7 +342,6 @@ def test_clean_skips_article_without_link() -> None:
     raw_articles = [
         {
             "title": "Example article",
-            "published": None,
         }
     ]
 
@@ -365,7 +357,6 @@ def test_clean_skips_article_with_empty_link() -> None:
         {
             "title": "Example article",
             "link": "   ",
-            "published": None,
         }
     ]
 
@@ -398,7 +389,6 @@ def test_clean_skips_article_with_invalid_optional_text() -> None:
             "title": "Example article",
             "link": "https://example.com/article",
             "description": 123,
-            "published": None,
         }
     ]
 
@@ -414,9 +404,7 @@ def test_clean_skips_article_with_invalid_category() -> None:
         {
             "title": "Example article",
             "link": "https://example.com/article",
-            "category": {
-                "name": "Technology",
-            },
+            "category": 123,
         }
     ]
 
@@ -431,12 +419,12 @@ def test_clean_continues_after_invalid_article() -> None:
     raw_articles = [
         {
             "title": "Invalid article",
-            "link": "",
+            "link": "https://example.com/invalid",
+            "published": "not-a-date",
         },
         {
             "title": "Valid article",
             "link": "https://example.com/valid",
-            "published": None,
         },
     ]
 
@@ -447,15 +435,12 @@ def test_clean_continues_after_invalid_article() -> None:
 
 
 def test_clean_calculates_id_from_normalized_values() -> None:
-    cleaner = make_cleaner(
-        source_url="https://example.com/news/",
-    )
+    cleaner = make_cleaner()
 
     raw_articles = [
         {
             "title": "  Example article  ",
-            "link": "../article",
-            "published": None,
+            "link": "/article",
         }
     ]
 
@@ -465,10 +450,70 @@ def test_clean_calculates_id_from_normalized_values() -> None:
 
     article = articles[0]
 
-    expected = Article(
-        title="Example article",
-        link="https://example.com/article",
-        source="Example Source",
+    assert article.title == "Example article"
+    assert article.link == "https://example.com/article"
+    assert article.id == (
+        "c19b90f3f17009d7d2025932bfea72ac3a3ca5186e0e11abd10d540e99df7fef"
     )
 
-    assert article.id == expected.id
+
+def test_clean_normalizes_naive_datetime_to_utc() -> None:
+    cleaner = make_cleaner()
+
+    raw_articles = [
+        {
+            "title": "Example article",
+            "link": "https://example.com/article",
+            "published": datetime(
+                2026,
+                8,
+                31,
+                10,
+                30,
+            ),
+        }
+    ]
+
+    articles = cleaner.clean(raw_articles)
+
+    assert len(articles) == 1
+    assert articles[0].published == datetime(
+        2026,
+        8,
+        31,
+        10,
+        30,
+        tzinfo=timezone.utc,
+    )
+
+
+def test_clean_normalizes_aware_datetime_to_utc() -> None:
+    cleaner = make_cleaner()
+
+    raw_articles = [
+        {
+            "title": "Example article",
+            "link": "https://example.com/article",
+            "published": datetime(
+                2026,
+                8,
+                31,
+                11,
+                30,
+                tzinfo=timezone.utc,
+            ),
+        }
+    ]
+
+    articles = cleaner.clean(raw_articles)
+
+    assert len(articles) == 1
+    assert articles[0].published == datetime(
+        2026,
+        8,
+        31,
+        11,
+        30,
+        tzinfo=timezone.utc,
+    )
+    assert articles[0].published.tzinfo == timezone.utc

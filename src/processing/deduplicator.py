@@ -1,5 +1,5 @@
 #Deve tratar apenas da deduplicação da recolha atual (a mesma notícia aparece duas vezes nos resultados da fonte). O estado histórico ficará num componente próprio. Isto também deixa aberta a possibilidade de, no futuro, querermos manter um artigo no histórico mas permitir que ele volte a ser publicado, sem alterar a lógica de deduplicação.
-from ..models.article import Article
+from models.article import Article
 
 
 class ArticleDeduplicator:
