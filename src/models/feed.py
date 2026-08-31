@@ -11,3 +11,4 @@ class Feed:
     description: str
     link: str
     sources: list[str] = field(default_factory=list)
+    max_items: int = 50
