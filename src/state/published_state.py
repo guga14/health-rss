@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import json
 import os
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 from typing import Iterable
 
 
@@ -14,9 +14,14 @@ class PublishedState:
     def __init__(self, path: str | Path) -> None:
         self.path = Path(path)
 
+        # Validate an existing state file immediately.
+        # A missing file is valid and represents an empty state.
+        self._load()
+
     def is_published(self, article_id: str) -> bool:
         """Return True if an article has already been published."""
         state = self._load()
+
         return article_id in state
 
     def unpublished(self, article_ids: Iterable[str]) -> list[str]:
@@ -50,9 +55,7 @@ class PublishedState:
             if article_id in state:
                 continue
 
-            state[article_id] = {
-                "published_at": published_at,
-            }
+            state[article_id] = published_at
             changed = True
 
         if not changed:
@@ -60,50 +63,56 @@ class PublishedState:
 
         self._save_atomic(state)
 
-    def _load(self) -> dict[str, dict[str, str]]:
-        """Load the published state from disk."""
+    def _load(self) -> dict[str, str]:
+        """
+        Load the published state from disk.
+
+        A missing state file represents an empty state.
+
+        Invalid JSON and JSON values other than an object are considered
+        invalid state and raise ValueError.
+        """
         if not self.path.exists():
             return {}
 
-        with self.path.open("r", encoding="utf-8") as file:
-            data = json.load(file)
+        try:
+            raw = self.path.read_text(encoding="utf-8")
+            data = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            raise ValueError(
+                f"Invalid JSON in state file: {self.path}"
+            ) from exc
 
         if not isinstance(data, dict):
-            raise ValueError("Published state must be a JSON object.")
-
-        articles = data.get("articles", {})
-
-        if not isinstance(articles, dict):
             raise ValueError(
-                "Published state 'articles' must be a JSON object."
+                f"State file must contain an object: {self.path}"
             )
 
-        return articles
+        return data
 
     def _save_atomic(
         self,
-        articles: dict[str, dict[str, str]],
+        state: dict[str, str],
     ) -> None:
         """Atomically replace the published state file."""
         self.path.parent.mkdir(parents=True, exist_ok=True)
 
-        data = {
-            "articles": articles,
-        }
-
-        fd, temporary_path = NamedTemporaryFile(
-            mode="w",
-            encoding="utf-8",
+        fd, temporary_path = tempfile.mkstemp(
             dir=self.path.parent,
             prefix=f".{self.path.name}.",
             suffix=".tmp",
-            delete=False,
         )
 
+        temporary_path = Path(temporary_path)
+
         try:
-            with os.fdopen(fd, "w", encoding="utf-8") as file:
+            with os.fdopen(
+                fd,
+                "w",
+                encoding="utf-8",
+            ) as file:
                 json.dump(
-                    data,
+                    state,
                     file,
                     ensure_ascii=False,
                     indent=2,
@@ -112,11 +121,11 @@ class PublishedState:
                 file.flush()
                 os.fsync(file.fileno())
 
-            os.replace(temporary_path, self.path)
+            temporary_path.replace(self.path)
 
         except Exception:
             try:
-                os.unlink(temporary_path)
+                temporary_path.unlink()
             except FileNotFoundError:
                 pass
 
