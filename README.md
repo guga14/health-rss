@@ -1,34 +1,35 @@
-- Fluxo:
+- Fluxo mínimo:
 
-                 FETCH
+                 FONTES
+        ┌──────────┼──────────┐
+        ↓          ↓          ↓
+      RSS        HTML        API
+        │          │          │
+        └──────────┼──────────┘
                    ↓
-             raw articles
+              FETCH / READ
                    ↓
-                CLEAN
+             NORMALIZAÇÃO
                    ↓
-                Article
+              ARTIGOS[]
                    ↓
-             DEDUPLICATE
-                   ↓
-              unique Article
+           GERAR RSS / XML
                    ↓
           ┌─────────────────┐
-          │ Published State │
-          └────────┬────────┘
+          │  feed-saude.xml │
+          │  feed-farmacia.xml
+          │  feed-investigacao.xml
+          │       ...       │
+          └─────────────────┘
                    ↓
-             artigos novos
+             GIT COMMIT
                    ↓
-             FeedGenerator
+             GITHUB REPO
                    ↓
-                RSS XML
+            GITHUB PAGES
                    ↓
-             Output/Publish
+              URLs RSS
                    ↓
-              sucesso?
-              /       \
-            não       sim
-             ↓         ↓
-         não altera   mark
-          state     published
+                 RSS APP
 
-A ordem dos feeds na configuração define a prioridade quando um mesmo artigo pertence a vários feeds.
+  
